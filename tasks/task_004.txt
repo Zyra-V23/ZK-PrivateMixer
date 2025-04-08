@@ -1,0 +1,19 @@
+# Task ID: 4
+# Title: Implement Key Management and Note System
+# Status: pending
+# Dependencies: 1, 2
+# Priority: high
+# Description: Develop a secure system for generating, storing, and managing commitment notes for deposits and withdrawals.
+# Details:
+Implement secure client-side key and note generation. Create a system for generating secure random values for commitments. Develop note encryption and storage in browser local storage. Create a note import/export functionality with secure formats. Implement note validation logic. Add secure note display with copy-to-clipboard. Create a note recovery mechanism where possible. Add warning system for note protection and security best practices.
+
+# Test Strategy:
+Verify secure random number generation. Test note format and validation. Check note persistence across sessions. Validate import/export functionality. Test clipboard integration. Verify recovery mechanisms.
+
+# Subtasks:
+## 1. Review and Adapt Project Rules for Key Management [pending]
+### Dependencies: None
+### Description: Review existing project rules and adapt or create new rules relevant to secure key generation, note handling, and client-side security.
+### Details:
+Focus on rules for secure random number generation, local storage encryption, note format standards, and secure display of sensitive information.
+

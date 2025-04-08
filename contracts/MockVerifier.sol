@@ -5,18 +5,18 @@ import "./Verifier.sol"; // Import the interface
 
 /**
  * @title MockVerifier
- * @notice A mock verifier contract for testing purposes.
- * @dev Always returns true for verifyProof, ignoring the actual proof data.
+ * @notice A mock verifier contract that validates our simple multiplier circuit.
+ * @dev Validates that input[0] is 15 (3*5) for our simple circuit.
  */
 contract MockVerifier is IVerifier {
     /**
-     * @notice Mock implementation of verifyProof.
-     * @dev Always returns true, regardless of input.
-     * @param a The proof component a (ignored).
-     * @param b The proof component b (ignored).
-     * @param c The proof component c (ignored).
-     * @param input The public inputs for the proof (ignored).
-     * @return Always true.
+     * @notice Simplified implementation of verifyProof for testing.
+     * @dev Checks if input[0] equals 15 (3*5)
+     * @param a The proof component a (checked to be non-zero).
+     * @param b The proof component b (checked to be non-zero).
+     * @param c The proof component c (checked to be non-zero).
+     * @param input The public inputs for the proof (input[0] must be 15).
+     * @return True if validation passes.
      */
     function verifyProof(
         uint256[2] memory a,
@@ -24,8 +24,13 @@ contract MockVerifier is IVerifier {
         uint256[2] memory c,
         uint256[] memory input
     ) external pure override returns (bool) {
-        // Ignore all inputs and always return true for testing
-        a; b; c; input; // Suppress unused variable warnings
-        return true;
+        // Basic existence checks
+        require(a[0] != 0 && a[1] != 0, "Invalid proof a");
+        require(b[0][0] != 0 && b[0][1] != 0 && b[1][0] != 0 && b[1][1] != 0, "Invalid proof b");
+        require(c[0] != 0 && c[1] != 0, "Invalid proof c");
+        
+        // Check for expected public input (c = a * b = 3 * 5 = 15)
+        require(input.length > 0, "No public inputs");
+        return input[0] == 15;
     }
 } 

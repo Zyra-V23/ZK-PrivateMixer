@@ -21,7 +21,7 @@ alwaysApply: true
         - **Import Path:** Use relative paths from the circuit file to `node_modules/circomlib/circuits/`. Example: `include "../../node_modules/circomlib/circuits/poseidon.circom";`
     - **Hashing:**
         - **Use Poseidon:** Employ the `Poseidon` template from `circomlib` for hashing within the circuit. It is significantly more constraint-efficient than Keccak256 inside ZK circuits.
-        - **Consistency:** Ensure the *exact same hash function* (Poseidon configuration, specifically) is used for generating commitments/nullifiers *outside* the circuit (e.g., in Solidity tests or frontend) as is used *inside* the circuit. Mismatcoof failures. Reference: [solidity_rules.mdc](mdc:.cursor/rules/solidity_rules.mdc).
+        - **Consistency:** Ensure the *exact same hash function* (Poseidon configuration, specifically) is used for generating commitments/nullifiers *outside* the circuit (e.g., in Solidity tests or frontend) as is used *inside* the circuit. Mismatches lead to verification failures. Reference: [solidity_rules.mdc](mdc:.cursor/rules/solidity_rules.mdc).
         - **Domain Separation:** Use distinct Poseidon instances or incorporate domain separation constants if hashing different types of data to prevent potential collisions (e.g., hashing `nullifier` vs. hashing `[nullifier, secret]`).
     - **Merkle Trees:**
         - **Use `MerkleTreeChecker`:** Leverage `circomlib/circuits/merkle_tree.circom/MerkleTreeChecker` for verifying Merkle proofs. It handles path validation correctly.
@@ -156,31 +156,49 @@ alwaysApply: true
             - Complex testing with realistic values
             - Edge cases and error conditions
     - **B. Witness Generation:**
+        - **🚨 IMPORTANT: Prefer CLI Over JS API:** Always use the CLI commands for witness generation rather than the JavaScript API. The CLI tools are more stable and reliable.
         - **Input File:** Use the generated JSON file (e.g., `inputs/example_input.json`) with all required inputs.
         - **Command:**
           ```bash
-          node build/zk/mixer_js/generate_witness.js build/zk/mixer_js/mixer.wasm inputs/example_input.json build/zk/witness.wtns
+          # USE THIS CLI APPROACH - More reliable and consistent
+          npx snarkjs wtns calculate build/zk/mixer_js/mixer.wasm inputs/example_input.json build/zk/witness.wtns
+          
+          # AVOID this JS API approach as it can be unstable across Node.js versions
+          # const { witness } = await snarkjs.wtns.calculate(input, wasmPath);
           ```
         - **Troubleshooting Witness Generation:**
-            - If the witness generation fails with "Error in template X line Y", check the `.sym` file to identify the constraint
-            - Verify that all inputs are cryptographically consistent
-            - For SMT-specific errors, ensure siblings array and path indices satisfy SMTVerifier requirements
-            - Try with simplified inputs before using complex ones
+            - If the witness generation fails with errors like "Cannot read properties of undefined", switch to CLI commands
+            - Create a shell script (.sh) to automate the process if you need to run it frequently
+            - Ensure all relative paths are correct when running commands
+            - For complex workflows, prefer bash scripts or Makefile over Node.js scripts
 
 - **6. Proof Generation (`snarkjs`)**
     - **Goal:** Generate the actual ZK-SNARK proof using the final `.zkey` and the calculated witness.
-    - **Command:**
+    - **🚨 IMPORTANT: Use CLI Command:**
       ```bash
+      # More reliable CLI approach
       npx snarkjs groth16 prove build/zk/mixer_final.zkey build/zk/witness.wtns build/zk/proof.json build/zk/public.json
+      
+      # AVOID JavaScript API if possible
+      # const { proof, publicSignals } = await snarkjs.groth16.prove(zkeyPath, witness);
       ```
     - **Outputs:**
         - `proof.json`: Contains the proof components (`pi_a`, `pi_b`, `pi_c`).
         - `public.json`: Contains the values of the public input signals derived from the witness.
+    - **Generate Solidity Calldata:**
+      ```bash
+      # Generates formatted data for Solidity contract calls
+      npx snarkjs zkey export soliditycalldata build/zk/public.json build/zk/proof.json > calldata.txt
+      ```
 
 - **7. Verification (`snarkjs` / Solidity)**
     - **A. Off-Chain Verification:** Quickly verify the proof against the public inputs using `snarkjs`. Useful for testing and debugging.
       ```bash
+      # CLI approach - more reliable
       npx snarkjs groth16 verify build/zk/verification_key.json build/zk/public.json build/zk/proof.json
+      
+      # AVOID JavaScript API for critical operations
+      # const verified = await snarkjs.groth16.verify(vkey, publicSignals, proof);
       ```
       - Expect output indicating `[OK]` if valid.
     - **B. On-Chain Verification:**
@@ -193,6 +211,8 @@ alwaysApply: true
         - Check for syntax errors, undefined variables, or incorrect includes
         - Verify that imported templates exist and are properly referenced
     - **Witness Generation Errors:**
+        - **🚨 JavaScript API Issues:** If encountering errors like "Cannot read properties of undefined (reading 'type')" when using the JavaScript API (`snarkjs.wtns.calculate()`), switch to CLI commands (`npx snarkjs wtns calculate`)
+        - **🚨 Create Automation Scripts:** For complex workflows, create shell scripts (.sh) that execute the full pipeline from witness calculation to proof generation
         - **SMTVerifier Line 92:** If error occurs in SMTVerifier line 92, check that your siblings array follows SMT requirements
         - **Hash Verification Failures:** Ensure nullifierHash is calculated identically in the circuit and input
         - **Consistency Checks:** Verify that all private and public inputs are cryptographically consistent
@@ -208,8 +228,43 @@ alwaysApply: true
         - Use clear naming (e.g., `debug_input.json`, `test_valid_input.json`)
         - Add inputs to `.gitignore` if they contain sensitive information
 
-- **Automation & Scripts**
-    - Create scripts in `/scripts` (e.g., `compile.sh`, `setup.sh`, `generate_proof.js`, `verify.js`) to automate these steps for consistency and ease of use.
+- **9. Automation & Scripts**
+    - **Prefer CLI-Based Shell Scripts:** Create shell scripts (.sh) for automation instead of Node.js scripts when working with snarkjs
+    - **Complete Example Script:**
+      ```bash
+      #!/bin/bash
+      
+      set -e  # Exit on any error
+      
+      # Set up paths
+      WASM_FILE="build/zk/mixer_js/mixer.wasm"
+      INPUT_FILE="inputs/example_input.json"
+      WITNESS_FILE="build/zk/witness.wtns"
+      ZKEY_FILE="build/zk/mixer_final.zkey"
+      PROOF_FILE="build/zk/proof.json"
+      PUBLIC_FILE="build/zk/public.json"
+      VERIFICATION_KEY="build/zk/verification_key.json"
+      
+      # Step 1: Calculate witness
+      npx snarkjs wtns calculate "$WASM_FILE" "$INPUT_FILE" "$WITNESS_FILE"
+      
+      # Step 2: Generate proof
+      npx snarkjs groth16 prove "$ZKEY_FILE" "$WITNESS_FILE" "$PROOF_FILE" "$PUBLIC_FILE"
+      
+      # Step 3: Verify proof
+      npx snarkjs groth16 verify "$VERIFICATION_KEY" "$PUBLIC_FILE" "$PROOF_FILE"
+      
+      # Step 4: Generate Solidity calldata
+      npx snarkjs zkey export soliditycalldata "$PUBLIC_FILE" "$PROOF_FILE" > calldata.txt
+      ```
+    - **Makefile Alternative:** Consider using Makefiles for more complex build processes with dependencies tracking
 
-- **Iteration**
+- **10. Testing in CI/CD**
+    - When setting up continuous integration for ZK circuits:
+        - Use shell scripts rather than JavaScript for proof generation steps
+        - Install snarkjs globally in CI environment (`npm install -g snarkjs`)
+        - Cache powers of tau files between runs
+        - Create small test circuits to validate full build process quickly
+
+- **11. Iteration**
     - If the circuit (`.circom`) is modified, **all steps from Compilation (2) onwards MUST be repeated** (compilation, setup, verifier generation, witness/proof generation for tests). Phase 1 (Powers of Tau) can be reused if the circuit size limit is not exceeded.

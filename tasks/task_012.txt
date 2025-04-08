@@ -1,0 +1,31 @@
+# Task ID: 12
+# Title: Fix ZK Circuit Integration and Testing
+# Status: done
+# Dependencies: 1, 11
+# Priority: high
+# Description: Resolve integration issues between ZK circuit proofs and smart contract verification for proper testing operation.
+# Details:
+Address the issues identified during initial circuit testing by ensuring proper compatibility between the ZK circuit proofs and smart contract verification. Focus on resolving Merkle tree root calculation discrepancies, generating valid inputs for withdrawal tests, and ensuring proof format compatibility with the contract verification methods.
+
+# Test Strategy:
+Test Merkle tree root calculation consistency between JavaScript and Solidity implementations. Verify proof generation and verification for deposit and withdrawal flows. Ensure all 9 of 9 contract test cases pass successfully.
+
+# Subtasks:
+## 1. Fix Merkle Tree Root Calculation Consistency [done]
+### Dependencies: None
+### Description: Ensure that the Merkle tree root calculation is consistent between JavaScript and Solidity implementations.
+### Details:
+Investigate and resolve the root discrepancy between smart contract and JavaScript implementations. Compare the empty tree root values and hash function implementations in both environments. Update the implementation to ensure consistent behavior, focusing on the 'calculateMerkleRoot' function in ZKMixer.sol and its JavaScript equivalent in the test suite.
+
+## 2. Generate Valid Inputs and Proofs for Withdrawal Tests [done]
+### Dependencies: 12.1
+### Description: Create properly formatted inputs and proofs for the withdrawal test cases.
+### Details:
+Implement a robust input generation script for the mixer circuit that properly handles SMT requirements. Ensure inputs match the expected circuit parameters, especially for Merkle path construction. Generate valid ZK proofs using these inputs and format them correctly for the smart contract's verification function.
+
+## 3. Fix Proof Verification Format Compatibility [done]
+### Dependencies: 12.1, 12.2
+### Description: Ensure that the proof format generated matches what the contract verification methods expect.
+### Details:
+Review and update the proof formatting code to ensure compatibility between generated proofs and the contract's verifyProof function. Address any signature mismatches or parameter formatting issues. Modify the RealVerifier contract implementation as needed to correctly handle the proof format from snarkjs.
+

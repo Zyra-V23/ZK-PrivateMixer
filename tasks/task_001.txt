@@ -1,0 +1,106 @@
+# Task ID: 1
+# Title: Setup ZK Mixer Core Architecture
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Establish the foundational architecture for the ZK Mixer prototype, including smart contracts, ZK circuit, and web interface.
+# Details:
+Create a web-based architecture for a simple ZK Mixer. Set up a project with Solidity smart contracts, Circom circuits for ZK proofs, and a React-based web interface. Configure development environment with Hardhat. Implement the project structure with clear separation between contracts, circuits, and frontend. Set up testing environment for smart contracts and circuits. Include configuration for different networks (local, testnet, mainnet). Establish coding standards and documentation templates.
+
+# Test Strategy:
+Validate contracts compile and deploy successfully. Verify circuit generation and proof verification. Test frontend interaction with contracts. Perform code quality checks using static analysis tools.
+
+# Subtasks:
+## 1. Initialize Project Structure and Development Environment [done]
+### Dependencies: None
+### Description: Set up the initial project structure with the necessary development tools, frameworks, and folder organization to support ZK Mixer development.
+### Details:
+Implementation details:
+1. Create a new project repository
+2. Set up Hardhat development environment: `npm init -y && npm install --save-dev hardhat`
+3. Initialize Hardhat project: `npx hardhat init` (Choose JavaScript or TypeScript project)
+4. Install essential dependencies:
+   - Circom and snarkjs: `npm install --save-dev circom snarkjs`
+   - OpenZeppelin contracts: `npm install @openzeppelin/contracts`
+   - React and web3 libraries: `npm install react react-dom ethers web3`
+5. Establish folder structure:
+   - `/contracts` (Solidity smart contracts)
+   - `/circuits` (Circom circuit files)
+   - `/frontend` (React-based web interface)
+   - `/scripts` (Deployment and utility scripts)
+   - `/test` (Contract and circuit tests)
+6. Create configuration files for development, testing, and deployment
+7. Set up Git with appropriate .gitignore
+8. Create documentation templates (README.md, CONTRIBUTING.md)
+9. Testing approach: Verify environment setup by compiling a simple contract and circuit
+
+## 2. Implement Basic ZK Mixer Smart Contract [done]
+### Dependencies: 1.1
+### Description: Develop the foundational Solidity smart contract for the ZK Mixer with deposit and withdrawal functionality.
+### Details:
+Implementation details:
+1. Create the base Mixer contract in `/contracts/ZKMixer.sol`:
+   - Implement deposit function that accepts fixed amount deposits
+   - Create commitment storage using a Merkle tree structure
+   - Implement withdrawal function that verifies ZK proofs
+   - Add nullifier tracking to prevent double spending
+   - Include events for deposits and withdrawals
+2. Implement the Verifier contract that will verify ZK proofs
+3. Create interfaces and library contracts:
+   - MerkleTree implementation for efficient storage and verification
+   - Utility functions for commitment generation and nullifier handling
+4. Write comprehensive NatSpec documentation for all contracts
+5. Implement error handling with descriptive custom errors
+6. Create unit tests for all contract functionality
+7. Testing approach: Deploy and test contract functionality on a local Hardhat network
+
+## 3. Develop ZK Circuit for Proof Generation [done]
+### Dependencies: 1.2
+### Description: Design and implement the zero-knowledge circuit using Circom for proof generation in the ZK Mixer.
+### Details:
+Implementation details:
+1. Create the main circuit file in `/circuits/mixer.circom`:
+   - Define private inputs: secret, nullifier, Merkle path
+   - Define public inputs: Merkle root, nullifier hash, recipient address
+   - Implement constraints for commitment verification
+   - Add Merkle path verification logic
+   - Include nullifier hash validation
+2. Create helper circuits and templates:
+   - Merkle tree verification template
+   - Hash function implementations
+3. Compile circuit and generate proving/verification keys
+4. Create test vectors for circuit verification
+5. Implement script to generate proofs from circuit
+6. Write documentation explaining the circuit design and constraints
+7. Testing approach: Generate valid proofs for test cases and verify they work correctly
+
+## 4. Setup Basic Web Frontend [done]
+### Dependencies: 1.2, 1.3
+### Description: Create a simple web interface for interacting with the ZK Mixer, supporting wallet connection, deposits, and withdrawals.
+### Details:
+Implementation details:
+1. Set up React application in `/frontend`:
+   - Use Create React App or Vite for project initialization
+   - Add Web3 integration using ethers.js or web3.js
+   - Implement wallet connection using Metamask
+2. Create core UI components:
+   - Wallet connection button and status display
+   - Deposit form with amount input
+   - Withdrawal form with note input and recipient address
+   - Transaction status indicators
+3. Implement Web3 service for contract interaction:
+   - Contract instantiation and method calls
+   - Handle deposit transaction submission
+   - Client-side proof generation using snarkjs 
+   - Withdrawal transaction submission with proof
+4. Add simple styling and responsive design
+5. Implement error handling and user feedback
+6. Create simple documentation explaining frontend usage
+7. Testing approach: Test the UI on a local network with Hardhat
+
+## 5. Review and Adapt Project Rules for ZK Mixer [done]
+### Dependencies: 1.1, 1.2, 1.3, 1.4
+### Description: Review existing project rules (.cursor/rules) and adapt or create new rules relevant to ZK Mixer development, including Solidity, Circom, and React web development.
+### Details:
+Check rules related to Solidity smart contract development, Circom circuits, ZK proofs, React web development, and security practices. Create or update rules specific to ZK implementation, handling cryptographic secrets, and security best practices.
+

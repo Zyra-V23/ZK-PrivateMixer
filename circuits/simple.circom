@@ -1,8 +1,6 @@
-pragma circom 2.0.0;  
-  
-template A() {  
-  signal output o;  
-  o <== 1;  
-}  
-  
-component main = A(); 
+template T() {
+    signal private input a;
+    signal output b;
+    b <== a * a;
+}
+component main = T();

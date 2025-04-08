@@ -1,0 +1,49 @@
+# Task ID: 11
+# Title: Enhance Circom Circuitry Security and Anonymity
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: Audit and improve the security, robustness, and anonymity properties of the existing Circom circuits.
+# Details:
+Conduct a detailed review of the Circom circuits focusing on cryptographic implementations, anonymity guarantees, and constraint efficiency. Identify and rectify potential vulnerabilities, optimize constraints, and ensure adherence to best practices.
+
+# Test Strategy:
+Verify cryptographic primitives against known test vectors. Analyze nullifier uniqueness and derivation. Test circuit constraints for soundness errors. Assess anonymity properties through linkage analysis. Benchmark constraint counts before and after optimizations.
+
+# Subtasks:
+## 1. Audit Cryptographic Primitive Implementations [done]
+### Dependencies: None
+### Description: Verify the correctness and security parameters of implemented primitives like Poseidon, MiMC, SMT logic, and Baby Jubjub ECC operations.
+### Details:
+Check hash function parameters (rounds, constants). Validate SMT insertion/verification logic. Ensure ECC operations use standard, secure implementations and parameters. Compare against reference implementations.
+
+## 2. Verify Nullifier Uniqueness and Derivation Security [done]
+### Dependencies: 11.1
+### Description: Ensure nullifiers are unique per withdrawal and cannot be linked back to the deposit commitment.
+### Details:
+Analyze the nullifier derivation formula. Verify that the derivation uses the secret and commitment correctly. Check for potential collisions or predictability issues.
+
+## 3. Analyze Potential Anonymity Leaks in Deposit/Withdrawal Flow [done]
+### Dependencies: 11.1, 11.2
+### Description: Review the circuit logic for potential side-channel information leaks during deposit and withdrawal proof generation.
+### Details:
+Examine public inputs/outputs for unintended information exposure. Consider timing variations or other non-arithmetic properties. Assess if any part of the proof generation leaks information about the specific input commitment.
+
+## 4. Remove Obsolete Circuit Files (*_old.circom) [done]
+### Dependencies: None
+### Description: Identify and safely remove any outdated or unused circuit files (e.g., poseidon_old.circom, pedersen_old.circom) from the codebase.
+### Details:
+Confirm these files are not imported or used by any active circuits. Verify build process after removal. Ensure no dependencies were broken.
+
+## 5. Investigate Constraint Optimization Opportunities [done]
+### Dependencies: 11.1
+### Description: Analyze the existing circuits to identify areas where the number of constraints can be reduced without compromising security.
+### Details:
+Review complex components like ECC operations or Merkle path verification. Look for redundant constraints or opportunities to use more efficient gadget implementations. Benchmark constraint count before and after.
+
+## 6. Review and Adapt Project Rules for Circuit Security [done]
+### Dependencies: 11.1, 11.2, 11.3, 11.4, 11.5
+### Description: Update or create project rules (.cursor/rules) reflecting best practices identified during the circuit security enhancement task.
+### Details:
+Document secure parameters for primitives. Add rules for nullifier design. Specify guidelines for preventing anonymity leaks. Standardize constraint optimization techniques.
+

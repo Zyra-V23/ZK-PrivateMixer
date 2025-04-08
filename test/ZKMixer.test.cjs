@@ -63,7 +63,7 @@ async function generateProof(circuitInputs) {
             ],
             c: proof.pi_c.slice(0, 2).map(x => BigInt(x))
         };
-        
+
         return {
             formattedProof,
             publicSignals: publicSignals.map(x => BigInt(x))
@@ -208,7 +208,7 @@ describe("ZKMixer Contract with Real Proofs", function () {
     // Deploy contracts before each test
     beforeEach(async function () {
         [deployer, user1, user2, relayer] = await ethers.getSigners();
-        
+
         // Deploy the real verifier
         try {
             // Deploy the Groth16Verifier first
@@ -224,7 +224,7 @@ describe("ZKMixer Contract with Real Proofs", function () {
             console.error("Failed to deploy verifier contracts:", e);
             throw e;
         }
-        
+
         // Deploy ZKMixer with real verifier
         ZKMixer = await ethers.getContractFactory("ZKMixer");
         zkMixer = await ZKMixer.deploy(await verifier.getAddress());
@@ -492,7 +492,7 @@ describe("ZKMixer Contract with Real Proofs", function () {
                 expect(withdrawalEvent).to.not.be.undefined;
                 
                 // Check nullifier is now spent
-                expect(await zkMixer.nullifiers(nullifierHash)).to.be.true;
+            expect(await zkMixer.nullifiers(nullifierHash)).to.be.true;
             } catch (error) {
                 console.error(`Withdrawal failed with error: ${error}`);
                 throw error;
@@ -569,17 +569,17 @@ describe("ZKMixer Contract with Real Proofs", function () {
             ).to.be.revertedWith("Invalid ZK proof");
         });
 
-        it("Should revert withdrawals with invalid Merkle root", async function () {
-            const recipient = user2.address;
-            const relayerAddr = relayer.address;
-            const fee = 0;
+         it("Should revert withdrawals with invalid Merkle root", async function () {
+             const recipient = user2.address;
+             const relayerAddr = relayer.address;
+             const fee = 0;
             
             // Create a new nullifier that hasn't been spent yet
             const newNullifier = BigInt("0x" + crypto.randomBytes(31).toString("hex"));
             const nullifierHash = poseidonFunc([newNullifier, recipient]);
             
             // Create an invalid root
-            const invalidRoot = "0x" + "f".repeat(64);
+             const invalidRoot = "0x" + "f".repeat(64);
             
             // Get contract root and leaves for debugging
             const contractRoot = await zkMixer.calculateMerkleRoot();
@@ -616,7 +616,7 @@ describe("ZKMixer Contract with Real Proofs", function () {
             );
             
             // Try to withdraw with invalid root
-            await expect(
+             await expect(
                 zkMixer.withdraw(
                     encodedProof,
                     invalidRoot,
@@ -625,7 +625,7 @@ describe("ZKMixer Contract with Real Proofs", function () {
                     relayerAddr,
                     fee
                 )
-            ).to.be.revertedWith("Merkle root not known");
-        });
+              ).to.be.revertedWith("Merkle root not known");
+         });
     });
 }); 
