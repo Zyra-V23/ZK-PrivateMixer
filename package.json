@@ -1,0 +1,45 @@
+{
+  "name": "zk-mixer-exchange",
+  "description": "Anonimity, non kyc, no signup, user friendly, super user friendly, simple functionality and as strong as complex ones.",
+  "author": "Zyra-v23",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "list": "node scripts/dev.js list",
+    "generate": "node scripts/dev.js generate",
+    "parse-prd": "node scripts/dev.js parse-prd"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@openzeppelin/contracts": "^5.2.0",
+    "boxen": "^7.1.1",
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.3",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.13.5",
+    "figlet": "^1.7.0",
+    "gradient-string": "^2.0.2",
+    "openai": "^4.86.1",
+    "ora": "^7.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "web3": "^4.16.0"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "circom": "^0.5.42",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "fixed-merkle-tree": "^0.7.3",
+    "hardhat": "^2.22.19",
+    "snarkjs": "^0.7.5"
+  },
+  "keywords": [],
+  "license": "ISC"
+}

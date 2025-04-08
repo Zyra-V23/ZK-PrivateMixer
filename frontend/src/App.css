@@ -1,0 +1,291 @@
+/* Variables globales */
+:root {
+  --primary: #3a6ea5;
+  --primary-light: #5290cf;
+  --primary-dark: #245084;
+  --secondary: #ff6b6b;
+  --secondary-light: #ff9999;
+  --secondary-dark: #e63e3e;
+  --bg-light: #f8f9fa;
+  --bg-dark: #212529;
+  --text-light: #f8f9fa;
+  --text-dark: #212529;
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --border-radius: 8px;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  /* Apply the pixel font */
+  font-family: 'Press Start 2P', cursive; 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Dark synthwave background */
+  background-color: #0d0221; /* Deep dark purple/blue */
+  /* Bright retro text color */
+  color: #f0f0f0; /* Slightly off-white */
+  font-size: 10px; /* Adjust base size for pixel font */
+  line-height: 1.8; /* Increase line height for readability */
+  image-rendering: pixelated; /* Helps with pixelated look */
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* App Container */
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header Styles */
+.app-header {
+  background-color: #1a0a3b; /* Slightly lighter dark purple */
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Retro border */
+  border-bottom: 3px solid #ff00ff; /* Bright magenta border */
+}
+
+.app-header .logo {
+  font-size: 1.8em; /* Adjust size as needed */
+  font-weight: normal; /* Pixel fonts often look better normal weight */
+  color: #00ffff; /* Bright cyan */
+  text-shadow: 2px 2px 0px #ff00ff; /* Magenta 3D effect */
+  letter-spacing: 1px;
+}
+
+.app-header nav a {
+  margin-left: 15px;
+  color: #ffff00; /* Bright yellow links */
+  text-decoration: none;
+  font-size: 1em;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+.app-header nav a:hover {
+  color: #ffffff;
+  text-shadow: 1px 1px 0px #ff00ff; /* Slight magenta shadow on hover */
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 15px;
+}
+
+/* Mixer Interface Container */
+.mixer-interface-container {
+  background-color: rgba(26, 10, 59, 0.8); /* Semi-transparent dark purple */
+  padding: 25px;
+  /* Sharp 8-bit border */
+  border: 3px solid #00ffff; /* Bright cyan border */
+  width: 100%;
+  max-width: 450px; 
+  /* Neon glow effect */
+  box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff inset; 
+}
+
+/* Mode Toggle */
+.mode-toggle {
+  display: flex;
+  margin-bottom: 20px;
+  border: 2px solid #ffff00; /* Yellow border */
+}
+
+.mode-toggle button {
+  background-color: transparent;
+  border: none;
+  color: #ffff00; /* Yellow text */
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 1em; /* Match body font */
+  font-family: 'Press Start 2P', cursive;
+  flex: 1;
+  text-align: center;
+  border-right: 2px solid #ffff00; /* Separator */
+}
+
+.mode-toggle button:last-child {
+  border-right: none;
+}
+
+.mode-toggle button.active {
+  background-color: #ffff00; /* Yellow background */
+  color: #0d0221; /* Dark text on active */
+}
+
+/* Input Groups */
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #00ff00; /* Bright green labels */
+  font-size: 0.9em;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%; /* Full width within parent */
+  padding: 10px;
+  background-color: #1a0a3b; /* Dark input background */
+  border: 2px solid #ff00ff; /* Magenta border */
+  color: #f0f0f0; /* Light text */
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.9em;
+  image-rendering: pixelated;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #ffff00; /* Yellow border on focus */
+  box-shadow: 0 0 5px #ffff00; /* Yellow glow on focus */
+}
+
+.input-group textarea {
+  resize: none; /* Disable textarea resize */
+  min-height: 60px;
+}
+
+/* Action Button */
+.action-button {
+  background-color: #00ff00; /* Bright green button */
+  color: #0d0221; /* Dark text */
+  border: 2px solid #f0f0f0; /* White border */
+  padding: 12px 20px;
+  font-size: 1.1em;
+  font-weight: normal;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  width: 100%;
+  margin-top: 10px;
+  font-family: 'Press Start 2P', cursive;
+  text-shadow: 1px 1px 0px #1a0a3b;
+}
+
+.action-button:hover {
+  background-color: #ffff00; /* Yellow on hover */
+  color: #0d0221;
+  border-color: #0d0221;
+  transform: scale(1.02); /* Slight grow effect */
+}
+
+.action-button:active {
+    transform: scale(0.98); /* Slight shrink effect */
+}
+
+.action-button:disabled {
+  background-color: #555;
+  color: #aaa;
+  border-color: #777;
+  cursor: not-allowed;
+  opacity: 0.7;
+  text-shadow: none;
+}
+
+/* Footer Styles */
+.app-footer {
+  padding: 15px;
+  background-color: #1a0a3b; /* Match header background */
+  border-top: 3px solid #ff00ff; /* Magenta border */
+  color: #00ffff; /* Cyan text */
+  font-size: 0.8em;
+  margin-top: auto; 
+}
+
+/* Utility Classes */
+.error-message {
+  color: #ff0000; /* Bright red for errors */
+  font-size: 0.9em;
+  margin-top: 10px;
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px dashed #ff0000;
+  padding: 5px;
+}
+
+.success-message {
+  color: #00ff00; /* Bright green for success */
+  font-size: 0.9em;
+  margin-top: 10px;
+  background-color: rgba(0, 255, 0, 0.1);
+  border: 1px dashed #00ff00;
+  padding: 5px;
+}
+
+.loading-indicator {
+  margin-top: 10px;
+  font-style: normal;
+  color: #ffff00; /* Yellow */
+  /* Blinking effect could be added with animation */
+}
+
+/* Remove styles for old components if they exist */
+.deposit-container, .withdraw-container, .navbar, .notes-list-container, .info-container, .footer {
+    /* Remove or comment out styles related to the old theme */
+}
+
+/* Ensure connect wallet button is removed or restyled if it exists elsewhere */
+.connect-wallet-button {
+    display: none; /* Hide if it exists elsewhere */
+}
+
+/* Adjust NotesList and Info components if needed to fit the theme */
+.notes-table th, .notes-table td {
+  padding: 8px;
+  border-bottom: 1px solid #ff00ff;
+}
+
+.notes-table th {
+  background-color: #1a0a3b;
+  color: #ffff00;
+}
+
+.status-badge {
+    padding: 3px 6px;
+    font-size: 0.8em;
+    border: 1px solid;
+}
+
+.status-badge.deposited {
+  background-color: rgba(0, 255, 0, 0.2);
+  color: #00ff00;
+  border-color: #00ff00;
+}
+
+.status-badge.withdrawn {
+  background-color: rgba(0, 255, 255, 0.2);
+  color: #00ffff;
+  border-color: #00ffff;
+}

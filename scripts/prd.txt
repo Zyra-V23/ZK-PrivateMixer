@@ -1,0 +1,93 @@
+# Product Requirements Document (PRD) - ZK Mixer Prototype
+
+## 1. Introduction
+
+This document outlines the requirements for the initial prototype of a simple Zero-Knowledge (ZK) cryptocurrency mixer. The goal is to create a Minimum Viable Product (MVP) demonstrating core ZK privacy features for mixing assets on a blockchain (e.g., Ethereum or a compatible testnet). The focus is on simplicity, user-friendliness, and leveraging existing ZK proof systems.
+
+## 2. Goals
+
+*   Develop a functional prototype of a ZK-based cryptocurrency mixer.
+*   Provide users with a basic level of transaction privacy by breaking the on-chain link between deposit and withdrawal addresses.
+*   Serve as a foundation for potential future iterations and feature additions.
+*   Prioritize simplicity and ease of use for the initial version.
+
+## 3. Non-Goals
+
+*   Support for multiple token types or variable deposit amounts in the initial prototype.
+*   Advanced features like governance, complex fee structures, or anonymity mining.
+*   Audited, production-ready security (focus is on demonstrating functionality).
+*   Cross-chain functionality.
+
+## 4. Functional Requirements
+
+### 4.1. Core Smart Contract
+
+*   **Deposit:**
+    *   Users can deposit a fixed amount of a specific cryptocurrency (e.g., 0.1 ETH).
+    *   The deposit action generates a cryptographic commitment (hash of a secret and nullifier).
+    *   The commitment is added to a Merkle tree managed by the contract.
+    *   An event should be emitted upon successful deposit.
+*   **Withdraw:**
+    *   Users can withdraw the deposited amount to a new, unrelated address.
+    *   Withdrawal requires providing a ZK-SNARK proof.
+    *   The proof must demonstrate:
+        *   Knowledge of a secret corresponding to a valid, unspent commitment within the Merkle tree.
+        *   Ownership of the nullifier hash to prevent double-spending.
+    *   The ZK proof must be verified on-chain by the smart contract.
+    *   The nullifier hash must be marked as spent upon successful withdrawal.
+    *   An event should be emitted upon successful withdrawal.
+*   **Merkle Tree Management:**
+    *   The contract must maintain the Merkle tree of commitments.
+    *   Efficiently update the Merkle root when new commitments are added.
+
+### 4.2. ZK Circuit
+
+*   The circuit takes the following as private inputs:
+    *   Secret
+    *   Nullifier
+    *   Merkle path and indices for the commitment.
+*   The circuit takes the following as public inputs:
+    *   Merkle root
+    *   Nullifier hash
+    *   Recipient address
+    *   (Optional) Relayer fee
+    *   (Optional) Relayer address
+*   The circuit outputs a proof verifying the validity of the withdrawal claim without revealing the private inputs or the specific commitment being spent.
+
+### 4.3. User Interface (Frontend)
+
+*   **Wallet Connection:** Allow users to connect their Web3 wallet (e.g., MetaMask).
+*   **Deposit Interface:**
+    *   Display the fixed deposit amount.
+    *   Button to initiate the deposit transaction.
+    *   Generate and securely provide the user with their unique deposit note (containing secret and nullifier). **Crucially important for withdrawal.**
+*   **Withdraw Interface:**
+    *   Input field for the user's deposit note.
+    *   Input field for the recipient address.
+    *   (Optional) Input/selection for relayer usage and fee.
+    *   Button to generate the ZK proof (client-side).
+    *   Button to submit the withdrawal transaction (either directly or via a relayer).
+*   **Status Display:** Show the status of ongoing deposit/withdrawal transactions.
+
+### 4.4. Relayer (Optional)
+
+*   An off-chain service that submits withdrawal transactions on behalf of users.
+*   Accepts the ZK proof and withdrawal details from the user.
+*   Submits the transaction to the blockchain, paying the gas fee.
+*   Collects a small fee from the withdrawn amount as compensation.
+
+## 5. Technology Stack (Initial Recommendations)
+
+*   **Blockchain:** Ethereum (Goerli/Sepolia testnet initially).
+*   **Smart Contracts:** Solidity.
+*   **ZK Circuits:** Circom.
+*   **Proving System:** Groth16 (or Plonk).
+*   **Frontend:** React/Vue/Svelte, Ethers.js/Web3.js.
+*   **Proof Generation:** WebAssembly (WASM) build of the prover running client-side.
+
+## 6. Success Metrics (Prototype)
+
+*   Successful deposit of funds into the mixer contract.
+*   Successful withdrawal of funds to a new address using a valid ZK proof.
+*   Prevention of double-spending via nullifier hash checks.
+*   Basic user interface allows for deposit and withdrawal flows.

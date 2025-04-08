@@ -1,0 +1,110 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Guidelines for Web3 integration, blockchain interactions, and smart contract communication in the ZK Mixer project.
+globs: ["frontend/src/contexts/Web3*.js", "frontend/src/contexts/Mixer*.js", "frontend/src/utils/*eth*.js", "frontend/src/utils/*web3*.js"]
+alwaysApply: true
+---
+
+- **Library Selection**
+    - **Ethereum Libraries**: Use ethers.js v5.x for all Ethereum interactions due to its better TypeScript support, security features, and more modern API. Avoid web3.js for new development.
+    - **Wallet Connection**: Use Web3Modal or similar abstraction for wallet connections to support multiple wallet providers.
+    - **Contract Interaction**: Use the ethers.js Contract class for type-safe interactions with smart contracts.
+
+- **Provider Management**
+    - **Provider Initialization**: Initialize providers only when needed, typically in a React context that wraps the application.
+    - **Provider Caching**: Implement caching for Web3 providers to avoid unnecessary reconnections.
+    - **Multi-Provider Support**: Support different providers for different chains when working with multiple networks.
+    - **Disconnect Handling**: Properly handle disconnections, network changes, and account changes.
+
+- **Smart Contract Interaction**
+    - **ABI Management**: 
+        - Store ABIs in separate JSON files in the `/abis` directory.
+        - Import ABIs at the context level, not in individual components.
+        - Keep ABIs consistent with deployed contracts.
+    - **Contract Addresses**: 
+        - Use environment variables or a configuration file to manage contract addresses for different networks.
+        - Include a mapping of chainId to contract address.
+    - **Type Safety**:
+        - Use strong types for contract function parameters and return values.
+        - Consider generating TypeScript typings from ABIs for improved developer experience.
+
+- **Transaction Handling**
+    - **State Management**: 
+        - Track transaction states: "idle", "pending", "confirmed", "failed".
+        - Include transaction hash and receipt in the state.
+    - **Error Handling**:
+        - Handle common transaction errors: user rejection, out of gas, slippage, etc.
+        - Provide user-friendly error messages for technical errors.
+    - **Confirmation Blocks**:
+        - Wait for an appropriate number of confirmation blocks based on the transaction's importance.
+        - Use 1 confirmation for UI updates, 3+ for critical financial operations.
+    - **Gas Management**:
+        - Estimate gas before transactions.
+        - Consider implementing gas price suggestions (slow, medium, fast).
+        - Use EIP-1559 fee structure when available.
+
+- **Event Handling**
+    - **Event Listening**:
+        - Set up event listeners for relevant contract events.
+        - Clean up listeners when components unmount.
+    - **Real-time Updates**:
+        - Update UI in response to contract events.
+        - Consider using websocket providers for real-time updates.
+
+- **Network Management**
+    - **Multi-chain Support**:
+        - Check the current chainId and compare with the expected chainId.
+        - Prompt users to switch networks when necessary.
+    - **Network Metadata**:
+        - Maintain network metadata (name, explorer URL, icon) for user-friendly display.
+    - **Testnet Indicators**:
+        - Clearly indicate when a user is on a testnet environment.
+
+- **ZK-Specific Considerations**
+    - **Proof Generation**:
+        - Use snarkjs for client-side ZK proof generation.
+        - Handle the proof generation in a Web Worker to avoid blocking the main thread.
+        - Display appropriate loading states during proof generation.
+    - **Circuit Integration**:
+        - Ensure the circuit parameters match the smart contract expectations.
+        - Validate inputs before generating proofs.
+    - **Nullifier/Commitment Handling**:
+        - Generate cryptographic values (nullifiers, secrets) using secure random number generation.
+        - Never log or expose these values except in encrypted storage or hashed form.
+
+- **Security Best Practices**
+    - **Private Key Management**:
+        - Never request, store, or manipulate private keys directly.
+        - Always use wallet providers' signing capabilities.
+    - **Input Validation**:
+        - Validate all inputs, especially addresses and amounts, before submitting transactions.
+    - **Replay Protection**:
+        - Include chainId in transaction signing to prevent cross-chain replay attacks.
+    - **Front-running Protection**:
+        - Consider implementing commit-reveal schemes or similar protections for sensitive operations.
+
+- **Privacy Considerations**
+    - **Data Minimization**:
+        - Only collect and store data that is absolutely necessary.
+        - Prefer client-side storage over server-side when dealing with sensitive data.
+    - **Analytics Limitations**:
+        - Limit tracking and analytics to preserve user privacy.
+        - Anonymize data before sending to analytics services.
+    - **User Awareness**:
+        - Clearly communicate the privacy implications of actions.
+        - Educate users about best practices for maintaining privacy.
+
+- **Error Handling and Debugging**
+    - **Detailed Logging**:
+        - Implement comprehensive logging for blockchain interactions in development environments.
+        - Remove or disable verbose logging in production.
+    - **Testing Tools**:
+        - Use tools like Hardhat's local node for testing with deterministic addresses and fast confirmations.
+        - Create mock providers and contracts for testing UI components in isolation.
+    - **Diagnostics**:
+        - Create diagnostic tools or views for debugging connectivity issues.
+        - Consider implementing a "debug mode" for advanced users.
