@@ -44,3 +44,54 @@ node_modules
 
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
+
+# Node.js dependencies
+node_modules/
+
+# Build artifacts
+/build/
+/artifacts/
+/cache/
+/dist/
+
+# ZK specific
+.ptau
+*.zkey
+verification_key.json
+*.wtns
+witness_calculator.js
+*.sym
+*.r1cs
+*.wasm
+
+# IDE specific
+.vscode/
+.idea/
+
+# Temp files
+*.bak
+*.tmp
+*.temp
+*.log
+*.tsbuildinfo
+
+# Hardhat
+typechain-types/
+coverage/
+coverage.json
+
+# Circuits input/output data
+/inputs/secrets/
+/inputs/*_input.json
+*.proof.json
+*.public.json
+*_calldata.txt
+
+# Backup directories
+backup*/
+
+# Sensitive environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

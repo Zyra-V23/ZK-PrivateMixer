@@ -1,13 +1,15 @@
 {
-  "name": "zk-mixer-exchange",
-  "description": "Anonimity, non kyc, no signup, user friendly, super user friendly, simple functionality and as strong as complex ones.",
-  "author": "Zyra-v23",
-  "type": "module",
+  "name": "zk-mixer",
+  "version": "1.0.0",
+  "description": "ZK Mixer for private transactions on Ethereum",
+  "type": "commonjs",
   "scripts": {
-    "dev": "node scripts/dev.js",
-    "list": "node scripts/dev.js list",
-    "generate": "node scripts/dev.js generate",
-    "parse-prd": "node scripts/dev.js parse-prd"
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile",
+    "compile:circuits": "bash scripts/compile_circuits.sh",
+    "prove": "bash scripts/generate_proof.sh",
+    "node": "npx hardhat node",
+    "deploy": "npx hardhat run scripts/deploy.js --network localhost"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
@@ -26,7 +28,6 @@
     "react-dom": "^19.1.0",
     "web3": "^4.16.0"
   },
-  "version": "1.0.0",
   "main": "index.js",
   "directories": {
     "test": "test"
