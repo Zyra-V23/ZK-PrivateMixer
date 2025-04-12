@@ -110,7 +110,20 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the **MIT License with Commons Clause**.
+
+This means you can:
+✅ Use the software for any purpose (personal, commercial, academic).
+✅ Modify the code.
+✅ Distribute copies.
+✅ Create and sell products built *using* this software.
+
+However, you **cannot**:
+❌ Sell the software *itself*.
+❌ Offer the software *as a hosted service* where the primary value comes from this software.
+❌ Create competing products *based directly* on this software's code for sale or as a service.
+
+See the [LICENSE](LICENSE) file for the complete license text.
 
 ## Acknowledgements
 
