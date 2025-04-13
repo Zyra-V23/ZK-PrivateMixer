@@ -31,8 +31,52 @@ export const Web3Provider = ({ children }) => {
     setWeb3Modal(newWeb3Modal);
   }, []);
 
+  // Define handlers first, then the functions that depend on them
+
+  // Disconnect wallet
+  const disconnectWallet = useCallback(async () => {
+    try {
+      if (web3Modal) {
+        web3Modal.clearCachedProvider();
+      }
+      setProvider(null);
+      setSigner(null);
+      setAccount(null);
+      setChainId(null);
+      setIsConnected(false);
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
+    }
+  }, [web3Modal]);
+
+  // Handle account change
+  const handleAccountsChanged = useCallback((accounts) => {
+    if (accounts.length === 0) {
+      // MetaMask is locked or user has no accounts
+      disconnectWallet();
+    } else {
+      setAccount(accounts[0]);
+    }
+  }, [disconnectWallet]); // Depends on disconnectWallet
+
+  // Handle network change
+  const handleChainChanged = useCallback((chainIdHex) => {
+    // Force page reload per MetaMask recommendation
+    window.location.reload();
+  }, []); // No dependencies needed here
+
+  // Handle disconnection
+  const handleDisconnect = useCallback(() => {
+    disconnectWallet();
+  }, [disconnectWallet]); // Depends on disconnectWallet
+
   // Connect to wallet
   const connectWallet = useCallback(async () => {
+    // Ensure web3Modal is initialized before connecting
+    if (!web3Modal) {
+        console.error("Web3Modal not initialized yet");
+        return;
+    }
     try {
       setIsConnecting(true);
 
@@ -67,44 +111,7 @@ export const Web3Provider = ({ children }) => {
     } finally {
       setIsConnecting(false);
     }
-  }, [web3Modal]);
-
-  // Disconnect wallet
-  const disconnectWallet = useCallback(async () => {
-    try {
-      if (web3Modal) {
-        web3Modal.clearCachedProvider();
-      }
-      setProvider(null);
-      setSigner(null);
-      setAccount(null);
-      setChainId(null);
-      setIsConnected(false);
-    } catch (error) {
-      console.error("Error disconnecting wallet:", error);
-    }
-  }, [web3Modal]);
-
-  // Handle account change
-  const handleAccountsChanged = (accounts) => {
-    if (accounts.length === 0) {
-      // MetaMask is locked or user has no accounts
-      disconnectWallet();
-    } else {
-      setAccount(accounts[0]);
-    }
-  };
-
-  // Handle network change
-  const handleChainChanged = (chainIdHex) => {
-    // Force page reload per MetaMask recommendation
-    window.location.reload();
-  };
-
-  // Handle disconnection
-  const handleDisconnect = () => {
-    disconnectWallet();
-  };
+  }, [web3Modal, handleAccountsChanged, handleChainChanged, handleDisconnect]);
 
   // Auto-connect if there's a cached provider
   useEffect(() => {

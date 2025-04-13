@@ -5,106 +5,90 @@ alwaysApply: true
 ---
 ---
 description: Guidelines for Web3 integration, blockchain interactions, and smart contract communication in the ZK Mixer project.
-globs: ["frontend/src/contexts/Web3*.js", "frontend/src/contexts/Mixer*.js", "frontend/src/utils/*eth*.js", "frontend/src/utils/*web3*.js"]
+globs: ["frontend/src/contexts/Web3*.js", "frontend/src/contexts/Mixer*.js", "frontend/src/utils/*eth*.js", "frontend/src/utils/*web3*.js", "frontend/src/hooks/useNoteManagement.js"] # Added hook pattern
 alwaysApply: true
 ---
 
 - **Library Selection**
-    - **Ethereum Libraries**: Use ethers.js v5.x for all Ethereum interactions due to its better TypeScript support, security features, and more modern API. Avoid web3.js for new development.
-    - **Wallet Connection**: Use Web3Modal or similar abstraction for wallet connections to support multiple wallet providers.
-    - **Contract Interaction**: Use the ethers.js Contract class for type-safe interactions with smart contracts.
+    - **Ethereum Libraries**: Use ethers.js v6.x (align with Hardhat's version) for all Ethereum interactions.
+    - **Wallet Connection**: Use Web3Modal or similar abstraction for wallet connections.
+    - **Contract Interaction**: Use the ethers.js Contract class for type-safe interactions.
 
 - **Provider Management**
-    - **Provider Initialization**: Initialize providers only when needed, typically in a React context that wraps the application.
-    - **Provider Caching**: Implement caching for Web3 providers to avoid unnecessary reconnections.
-    - **Multi-Provider Support**: Support different providers for different chains when working with multiple networks.
-    - **Disconnect Handling**: Properly handle disconnections, network changes, and account changes.
+    - **Provider Initialization**: Initialize providers only when needed.
+    - **Provider Caching**: Implement caching.
+    - **Multi-Provider Support**: Handle different providers/networks.
+    - **Disconnect Handling**: Handle disconnections, network changes, account changes.
 
 - **Smart Contract Interaction**
-    - **ABI Management**: 
-        - Store ABIs in separate JSON files in the `/abis` directory.
-        - Import ABIs at the context level, not in individual components.
-        - Keep ABIs consistent with deployed contracts.
-    - **Contract Addresses**: 
-        - Use environment variables or a configuration file to manage contract addresses for different networks.
-        - Include a mapping of chainId to contract address.
-    - **Type Safety**:
-        - Use strong types for contract function parameters and return values.
-        - Consider generating TypeScript typings from ABIs for improved developer experience.
+    - **ABI Management**:
+        - Store ABIs in separate JSON files (e.g., `/frontend/src/abis`).
+        - Import ABIs centrally.
+        - Keep ABIs consistent with deployed contracts (update after recompilation).
+    - **Contract Addresses**:
+        - Use environment variables (`.env`) or a configuration file for contract addresses per network (localhost, testnet, mainnet).
+        - Include mapping of chainId to addresses (ZKMixer, Verifier, potentially PoseidonT3 if called directly).
+    - **Type Safety**: Use strong types; consider TypeChain if using TypeScript.
 
 - **Transaction Handling**
-    - **State Management**: 
-        - Track transaction states: "idle", "pending", "confirmed", "failed".
-        - Include transaction hash and receipt in the state.
-    - **Error Handling**:
-        - Handle common transaction errors: user rejection, out of gas, slippage, etc.
-        - Provide user-friendly error messages for technical errors.
-    - **Confirmation Blocks**:
-        - Wait for an appropriate number of confirmation blocks based on the transaction's importance.
-        - Use 1 confirmation for UI updates, 3+ for critical financial operations.
-    - **Gas Management**:
-        - Estimate gas before transactions.
-        - Consider implementing gas price suggestions (slow, medium, fast).
-        - Use EIP-1559 fee structure when available.
+    - **State Management**: Track transaction states (pending, confirmed, failed).
+    - **Error Handling**: Handle common errors; provide user-friendly messages.
+    - **Confirmation Blocks**: Wait for appropriate confirmations.
+    - **Gas Management**: Estimate gas; consider EIP-1559.
 
 - **Event Handling**
-    - **Event Listening**:
-        - Set up event listeners for relevant contract events.
-        - Clean up listeners when components unmount.
-    - **Real-time Updates**:
-        - Update UI in response to contract events.
-        - Consider using websocket providers for real-time updates.
+    - **Event Listening**: Set up listeners for `Deposit`, `Withdrawal`. Clean up listeners.
+    - **Real-time Updates**: Update UI based on events (websockets if available).
 
 - **Network Management**
-    - **Multi-chain Support**:
-        - Check the current chainId and compare with the expected chainId.
-        - Prompt users to switch networks when necessary.
-    - **Network Metadata**:
-        - Maintain network metadata (name, explorer URL, icon) for user-friendly display.
-    - **Testnet Indicators**:
-        - Clearly indicate when a user is on a testnet environment.
+    - **Multi-chain Support**: Check `chainId`; prompt users to switch.
+    - **Network Metadata**: Store network details.
+    - **Testnet Indicators**: Clearly show testnet usage.
 
 - **ZK-Specific Considerations**
-    - **Proof Generation**:
-        - Use snarkjs for client-side ZK proof generation.
-        - Handle the proof generation in a Web Worker to avoid blocking the main thread.
-        - Display appropriate loading states during proof generation.
-    - **Circuit Integration**:
-        - Ensure the circuit parameters match the smart contract expectations.
-        - Validate inputs before generating proofs.
-    - **Nullifier/Commitment Handling**:
-        - Generate cryptographic values (nullifiers, secrets) using secure random number generation.
-        - Never log or expose these values except in encrypted storage or hashed form.
+    - **Proof Generation (Client-Side)**:
+        - Use `snarkjs` (WASM version) for proof generation.
+        - **CRITICAL: Hash Consistency:** The JS library used for cryptographic operations (e.g., Poseidon from `circomlibjs`) **MUST** be consistent with the implementation used in the smart contracts (e.g., the local copy of `PoseidonT3.sol`). **Verify this consistency** with test vectors or known inputs (e.g., H(0,0), H(1,2)). Use the *exact same version* of JS libraries (e.g., `circomlibjs`) in the frontend as used in Hardhat tests.
+        - **Input Preparation:** Ensure all inputs passed to `snarkjs.groth16.fullProve` match the circuit's expected types and formats (e.g., decimal strings for BigInts).
+        - **Merkle Proof Generation:** Use a compatible JS Merkle tree library (e.g., `@zk-kit/incremental-merkle-tree`) that aligns with the circuit's verifier (`VerifyMerklePath`). Ensure correct handling of padding and zero values consistent with the verified setup.
+        - **Web Workers:** Perform proof generation in a Web Worker to avoid blocking the UI thread.
+        - **Loading States:** Display clear loading/progress indicators during proof generation.
+
+    - **Note (Nullifier/Secret) Management & Security**:
+        - **Secure Generation:**
+            - Generate `nullifier` and `secret` using cryptographically secure randomness via `window.crypto.getRandomValues()` poured into a `Uint8Array` or similar, ensuring sufficient entropy (e.g., 31 bytes each).
+            - Convert these byte arrays to the required format (e.g., BigInt or hex string) carefully.
+        - **NO Persistent Browser Storage:**
+            - **CRITICAL RULE:** **DO NOT store the user's note (`nullifier` and `secret`) persistently in the browser** (`localStorage`, `sessionStorage`, `IndexedDB`). This is highly vulnerable to XSS attacks.
+        - **Mandatory User Backup Flow:**
+            - After successful deposit and commitment calculation (`commitment = H(nullifier, secret)` using verified Poseidon JS), the user **MUST** be prompted to securely back up their note.
+            - Provide options to "Copy to Clipboard" and "Download as File".
+            - Display clear, prominent warnings emphasizing that this note is the **only way** to access their funds and **must be kept secret and safe**.
+        - **Manual Input for Withdrawal:**
+            - The withdrawal process **MUST** require the user to manually input their previously saved note (e.g., pasting into a text field or uploading the backup file).
+            - Validate the format of the provided note string before proceeding.
+        - **Standard Note Format:**
+            - Define and use a consistent, human-readable format for exported/imported notes. Include metadata for clarity.
+            - Example Format: `zkvoid-note-v1-eth-0.1-{chainId}-{base64(nullifier:secret)}` (Adapt chainId as needed, e.g., sepolia/11155111).
+        - **Ephemeral Memory Handling:**
+            - Keep the note (`nullifier`, `secret`) in component state or JS variables **only for the minimum time required** (e.g., during proof generation).
+            - Explicitly clear variables holding the note (e.g., set to `null`) once they are no longer needed within a function's scope. Avoid passing the raw note unnecessarily between components.
+        - **Clear UI Warnings & Education:**
+            - The UI **MUST** prominently display warnings about note security during deposit (backup) and withdrawal (input).
+            - Include text explaining the risk of loss if the note is mishandled or lost.
+            - Reinforce that the team/protocol cannot recover lost notes/funds.
 
 - **Security Best Practices**
-    - **Private Key Management**:
-        - Never request, store, or manipulate private keys directly.
-        - Always use wallet providers' signing capabilities.
-    - **Input Validation**:
-        - Validate all inputs, especially addresses and amounts, before submitting transactions.
-    - **Replay Protection**:
-        - Include chainId in transaction signing to prevent cross-chain replay attacks.
-    - **Front-running Protection**:
-        - Consider implementing commit-reveal schemes or similar protections for sensitive operations.
+    - **Private Key Management**: Use wallet providers; never handle keys directly.
+    - **Input Validation**: Validate user inputs (addresses, amounts, **note format**) before use.
+    - **Replay Protection**: Ensure `chainId` is included in proofs/hashes where necessary.
+    - **XSS Prevention:** Adhere to standard frontend security best practices (e.g., sanitize inputs, use secure frameworks/libraries, set appropriate HTTP headers) to mitigate the risk of XSS, which would compromise any client-side secret handling.
 
 - **Privacy Considerations**
-    - **Data Minimization**:
-        - Only collect and store data that is absolutely necessary.
-        - Prefer client-side storage over server-side when dealing with sensitive data.
-    - **Analytics Limitations**:
-        - Limit tracking and analytics to preserve user privacy.
-        - Anonymize data before sending to analytics services.
-    - **User Awareness**:
-        - Clearly communicate the privacy implications of actions.
-        - Educate users about best practices for maintaining privacy.
+    - **Data Minimization**: Collect only essential data.
+    - **Analytics Limitations**: Limit tracking.
+    - **User Awareness**: Clearly communicate privacy implications and security best practices (e.g., note backup).
 
 - **Error Handling and Debugging**
-    - **Detailed Logging**:
-        - Implement comprehensive logging for blockchain interactions in development environments.
-        - Remove or disable verbose logging in production.
-    - **Testing Tools**:
-        - Use tools like Hardhat's local node for testing with deterministic addresses and fast confirmations.
-        - Create mock providers and contracts for testing UI components in isolation.
-    - **Diagnostics**:
-        - Create diagnostic tools or views for debugging connectivity issues.
-        - Consider implementing a "debug mode" for advanced users.
+    - **Detailed Logging (Dev)**: Log relevant inputs, hashes, proof steps during development. Disable in production.
+    - **User Feedback:** Provide clear messages for proof generation errors, transaction failures, etc.

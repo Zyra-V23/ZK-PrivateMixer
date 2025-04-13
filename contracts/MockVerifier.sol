@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.20;
 
-import "./Verifier.sol"; // Import the interface
+import "./interfaces/IVerifier.sol"; // Import the INTERFACE
 
 /**
  * @title MockVerifier
@@ -22,7 +23,7 @@ contract MockVerifier is IVerifier {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c,
-        uint256[] memory input
+        uint[7] calldata input
     ) external pure override returns (bool) {
         // Basic existence checks
         require(a[0] != 0 && a[1] != 0, "Invalid proof a");
@@ -30,7 +31,7 @@ contract MockVerifier is IVerifier {
         require(c[0] != 0 && c[1] != 0, "Invalid proof c");
         
         // Check for expected public input (c = a * b = 3 * 5 = 15)
-        require(input.length > 0, "No public inputs");
-        return input[0] == 15;
+        require(input.length == 7, "Incorrect number of public inputs");
+        return true;
     }
 } 

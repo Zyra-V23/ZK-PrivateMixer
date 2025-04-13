@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./Verifier.sol";
+// import "./Verifier.sol"; // REMOVED old import
+import "./interfaces/IVerifier.sol"; // ADDED interface import
 // import "./MerkleTree.sol"; // Placeholder for Merkle tree library
+import "./libraries/PoseidonT3.sol"; // USE LOCAL COPY
 
 /**
  * @title ZKMixer
@@ -15,8 +17,12 @@ contract ZKMixer {
     IVerifier public immutable verifier;
     // MerkleTree public merkleTree;
 
+    // RESTORED state variable for external library address
+    // address public immutable poseidonHasherAddress;
+
     // --- Merkle Tree State ---
-    bytes32 public constant ZERO_VALUE = keccak256(abi.encodePacked("ZKMixer_ZeroValue")); // Placeholder zero value for empty leaves
+    // Use the precalculated Poseidon hash of (0, 0) matching the JS tests
+    bytes32 public constant ZERO_VALUE = 0x2098f5fb9e239eab3ceac3f27b81e481dc3124d55ffed523a839ee8446b64864;
     bytes32[] public leaves;
     mapping(bytes32 => bool) public knownRoots;
     uint32 public nextLeafIndex;
@@ -32,10 +38,7 @@ contract ZKMixer {
     constructor(address _verifierAddress) {
         require(_verifierAddress != address(0), "Verifier address cannot be zero");
         verifier = IVerifier(_verifierAddress);
-        // Initialize Merkle Tree
-        // merkleTree = new MerkleTree(MERKLE_TREE_HEIGHT);
-        // Mark the initial "zero" root as known (tree with no leaves)
-        knownRoots[calculateMerkleRoot()] = true; // Calculate and store the initial root
+        knownRoots[calculateMerkleRoot()] = true;
     }
 
     /**
@@ -66,10 +69,11 @@ contract ZKMixer {
     function calculateMerkleRoot() public view returns (bytes32) {
         uint256 numLeaves = leaves.length;
         if (numLeaves == 0) {
-            // Calculate the root for an empty tree (hash of zero values up the levels)
-            bytes32 currentHash = ZERO_VALUE;
+            // Calculate the root for an empty tree using the Poseidon-based ZERO_VALUE
+            bytes32 currentHash = ZERO_VALUE; // Use the correct zero value
             for (uint32 h = 0; h < MERKLE_TREE_HEIGHT; h++) {
-                currentHash = _hashPair(currentHash, currentHash);
+                // Hash the current hash with itself using the Poseidon-based hash function
+                currentHash = _hashPair(currentHash, currentHash); 
             }
             return currentHash;
         }
@@ -77,7 +81,10 @@ contract ZKMixer {
         // Implement the full Merkle tree calculation
         uint256 levelNodeCount = numLeaves;
         // Create a temporary array matching the full tree size for this level if needed
-        bytes32[] memory currentLevel = new bytes32[](levelNodeCount);
+        // IMPORTANT: Ensure enough capacity - levelNodeCount could be up to 2**height
+        // For simplicity, let's assume levelNodeCount is reasonable for memory array.
+        // Consider using storage or more complex memory management for very large inputs.
+        bytes32[] memory currentLevel = new bytes32[](levelNodeCount); 
         for(uint256 i = 0; i < numLeaves; i++) {
             currentLevel[i] = leaves[i];
         }
@@ -108,15 +115,15 @@ contract ZKMixer {
 
     /**
      * @notice Helper function to hash a pair of nodes.
-     * @dev Uses keccak256 for now. ZK circuits often use Poseidon.
-     *      Ensures order consistency by hashing lower value first.
+     * @dev Uses the linked PoseidonT3 library statically.
      */
     function _hashPair(bytes32 a, bytes32 b) internal pure returns (bytes32) {
-        if (uint256(a) < uint256(b)) {
-            return keccak256(abi.encodePacked(a, b));
-        } else {
-            return keccak256(abi.encodePacked(b, a));
-        }
+        uint256[2] memory inputs;
+        inputs[0] = uint256(a);
+        inputs[1] = uint256(b);
+        // Call the library function statically using its name
+        uint256 result = PoseidonT3.hash(inputs);
+        return bytes32(result);
     }
 
     /**
@@ -127,6 +134,7 @@ contract ZKMixer {
      * @param _recipient The address to receive the withdrawn funds.
      * @param _relayer The address of the relayer (optional).
      * @param _fee The fee paid to the relayer (optional).
+     * @param _refund The refund amount (optional).
      */
     function withdraw(
         bytes calldata _proof,
@@ -134,7 +142,8 @@ contract ZKMixer {
         bytes32 _nullifierHash,
         address payable _recipient,
         address payable _relayer,
-        uint256 _fee
+        uint256 _fee,
+        uint256 _refund
     ) external {
         require(_nullifierHash != bytes32(0), "Nullifier hash cannot be zero");
         require(!nullifiers[_nullifierHash], "Nullifier already spent");
@@ -147,14 +156,24 @@ contract ZKMixer {
             (uint256[2], uint256[2][2], uint256[2])
         );
         
-        // For our multiplier circuit, public inputs are the output 'c'
-        uint256[] memory input = new uint256[](3); 
-        input[0] = 15; // a * b = 3 * 5 = 15
-        input[1] = 3;  // Input 'a' value
-        input[2] = 5;  // Input 'b' value
-        
-        // Verify the proof with these inputs
-        // The nullifierHash might be invalid which would cause verification to fail
+        // --- IMPORTANT: Update ZK Proof Inputs ---
+        // The public inputs for the proof must match EXACTLY what the circuit expects.
+        // We need to construct the `input` array based on the actual public signals
+        // from our (yet to be fully defined) circuit.
+        // These will likely include _root, _nullifierHash, _recipient, _relayer, _fee, chainId etc.
+        // The example values below are placeholders and MUST be replaced.
+        // Declare as fixed-size array matching the IVerifier interface
+        uint256[7] memory input; 
+        input[0] = uint256(_root);
+        input[1] = uint256(_nullifierHash);
+        // Correct casting: address payable -> address -> uint160 -> uint256
+        input[2] = uint256(uint160(address(_recipient))); 
+        input[3] = uint256(uint160(address(_relayer)));   
+        input[4] = _fee;
+        input[5] = block.chainid;               // Include chain ID for replay protection
+        input[6] = _refund;                     // Added refund
+
+        // Verify the proof with the correctly constructed public inputs
         require(verifier.verifyProof(a, b, c, input), "Invalid ZK proof");
         
         // Mark nullifier as spent

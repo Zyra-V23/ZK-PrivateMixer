@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 ---
 description: Guidelines and best practices for writing Solidity smart contracts in the ZK Mixer project.
@@ -15,15 +15,15 @@ alwaysApply: true
     - Prioritize security and clarity over micro-optimizations, but be mindful of gas costs.
 
 - **Naming Conventions**
-    - `UpperCamelCase` for contracts and libraries (e.g., `ZKMixer`, `MerkleTreeLib`).
+    - `UpperCamelCase` for contracts, interfaces, libraries (e.g., `ZKMixer`, `IVerifier`, `PoseidonT3`).
     - `mixedCase` for functions, state variables, local variables, and parameters (e.g., `deposit`, `merkleRoot`, `_commitment`).
-    - `ALL_CAPS_SNAKE_CASE` for constants (e.g., `DENOMINATION`, `MERKLE_TREE_HEIGHT`).
+    - `ALL_CAPS_SNAKE_CASE` for constants (e.g., `DENOMINATION`, `MERKLE_TREE_HEIGHT`, `ZERO_VALUE`).
     - `UpperCamelCase` for events (e.g., `Deposit`, `Withdrawal`).
     - `UpperCamelCase` for custom errors (e.g., `InvalidProof`, `NullifierAlreadySpent`).
     - Prepend parameters with an underscore (`_`) (e.g., `_commitment`, `_recipient`).
 
 - **Code Structure & Layout**
-    - Order within contracts: Type declarations, state variables, events, modifiers, constructor, receive/fallback functions, external functions, public functions, internal functions, private functions.
+    - Order within contracts: Interfaces/Libraries imports, Type declarations, State variables, Events, Modifiers, Constructor, receive/fallback functions, external functions, public functions, internal functions, private functions.
     - Use consistent indentation (4 spaces).
 
 - **Security Best Practices**
@@ -34,13 +34,13 @@ alwaysApply: true
         // OR
         if (_commitment == bytes32(0)) revert InvalidCommitment();
         ```
-    - **Access Control**: Implement access control where necessary (e.g., using OpenZeppelin's `Ownable` or role-based access control if needed).
+    - **Access Control**: Implement access control where necessary (e.g., using OpenZeppelin's `Ownable`).
     - **Reentrancy**: Adhere strictly to Checks-Effects-Interactions. Use OpenZeppelin's `ReentrancyGuard` if complex external calls are unavoidable.
     - **Arithmetic**: Rely on Solidity >=0.8 default checked arithmetic. Be explicit with `unchecked` blocks only when overflow/underflow is impossible or intended and clearly documented.
 
 - **Gas Optimization**
     - Minimize state variable writes (`SSTORE` is expensive).
-    - Use `immutable` for variables set only in the constructor.
+    - Use `immutable` for variables set only in the constructor (like `verifier`, `poseidonHasherAddress` if used).
     - Use `constant` for true compile-time constants.
     - Prefer `calldata` over `memory` for external function parameters where possible (especially for large data like proofs).
     - Cache state variables in local memory variables if read multiple times within a function.
@@ -65,30 +65,31 @@ alwaysApply: true
 - **Testing**
     - Aim for high test coverage using Hardhat (Mocha/Chai).
     - Test edge cases, access control, failure conditions (reverts), and event emissions.
-    - Use mocks for external dependencies during unit testing (e.g., mock Verifier).
+    - **Hash Consistency Test:** Include tests specifically verifying that the hash function used in Solidity (e.g., `PoseidonT3.hash`) produces the **exact same output** as the hash function used in JavaScript tests (e.g., from `circomlibjs`) for known inputs (e.g., `H(0,0)`, `H(1,2)`). This catches crucial implementation discrepancies early.
+    - Use mocks for external dependencies (like `IVerifier`) *only* for isolated unit tests.
 
-- **Dependencies**
+- **Dependencies & Libraries**
     - Use audited and well-maintained libraries like OpenZeppelin (`@openzeppelin/contracts`).
     - Specify dependency versions clearly in `package.json`.
+    - **Crypto Libraries (e.g., Poseidon):**
+        - **Prefer Local Copy & Static Linking:** For critical cryptographic libraries needed by contracts (like Poseidon), **copy the library source code** (e.g., `PoseidonT3.sol`) into the local `contracts/libraries/` directory.
+        - **Import Locally:** Import the library using a relative path (e.g., `import "./libraries/PoseidonT3.sol";`).
+        - **Call Statically:** Call library functions statically (`PoseidonT3.hash(...)`) within the contract. Mark contract functions using them as `pure` or `view` accordingly.
+        - **Link in Deployment/Tests:** Use Hardhat's library linking mechand tests to link the contract with the deployed library address (e.g., `getContractFactory("ZKMixer", { libraries: { PoseidonT3: deployedPoseidonLibAddress } })`).
+        - This pattern avoids potential issues with calling external contracts via address and resolves linking ambiguities.
 
-    - **ZK Mixer Specifics**
+- **ZK Mixer Specifics**
     - **Merkle Trees**:
-        - Prefer audited libraries (like OpenZeppelin's upcoming MerkleProof library if suitable, or well-vetted community libraries) over implementing from scratch. Document the chosen library. [Example: `MerkleProof.sol`](mdc:#) <!-- Link to actual library file when chosen -->
-        - Be mindful of gas costs when updating/verifying against the tree. Use efficient update patterns if possible.
-        - Ensure the tree height (`MERKLE_TREE_HEIGHT`) is appropriate for the desired anonymity set size and gas limits.
+        - Logic for calculating the root (`calculateMerkleRoot`) must be consistent with the off-chain library used (`@zk-kit/incremental-merkle-tree`) and the circuit verifier (`VerifyMerklePath`), especially regarding the `ZERO_VALUE` and padding.
+        - Ensure the tree height (`MERKLE_TREE_HEIGHT`) constant matches the circuit parameter.
     - **Verifier & Proofs**:
-        - The `Verifier.sol` contract will be generated by `snarkjs` based on the compiled Circom circuit. Do not modify it manually.
-        - When calling `verifyProof` from `ZKMixer.sol`, ensure the public inputs match *exactly* the order and format defined in the Circom circuit. Document this mapping clearly in comments.
+        - Use the generated `Verifier.sol` (implementing `IVerifier`) for on-chain verification.
+        - Define `IVerifier` in `contracts/interfaces/`.
+        - Ensure the public inputs array (`input`) in `ZKMixer.withdraw` matches *exactly* the order and format defined in the Circom circuit's `main {public [...]}` declaration. Document this mapping clearly.
         - Pass proof data (`a`, `b`, `c`) as `calldata` for gas efficiency.
-        - Use mocks for the `IVerifier` interface in early unit tests before the actual `Verifier.sol` is generated. [Example: `MockVerifier.sol`](mdc:#) <!-- Link to mock file -->
     - **Commitments & Nullifiers**:
-        - Use `bytes32` consistently for commitments and nullifier hashes.
-        - Ensure the hash function used in Solidity for *generating* commitments (if done on-chain, though usually client-side) matches the one in the Circom circuit (e.g., Poseidon via precompile or library if available/needed, otherwise ensure consistency).
-        - Double-check logic for marking nullifiers as spent (`nullifiers[hash] = true;`) happens *after* successful proof verification but *before* the external transfer (Checks-Effects-Interactions).
-    - **Fixed Denomination**:
-        - Use the `DENOMINATION` constant consistently. Avoid hardcoding the value.
-        - Ensure `msg.value` checks are precise.
-    - **Relayer Logic**:
-        - If implementing the optional relayer, ensure fee calculations are safe from manipulation and overflow.
-        - Validate the relayer address and fee amounts strictly in `withdraw`.
-        - Transfer funds to the recipient *before* the relayer to prioritize the user in case of unexpected gas issues.
+        - Use `bytes32` consistently.
+        - **Hash Consistency:** CRITICAL: The Poseidon hash function used in Solidity (`PoseidonT3.sol` copied locally) MUST be consistent with the one used in JS tests (`circomlibjs`) and the one used in the Circom circuit (`circomlib/circuits/poseidon.circom`). Test this explicitly (see Testing section).
+        - Follow Checks-Effects-Interactions for nullifier spending.
+    - **Fixed Denomination**: Use `DENOMINATION` constant; check `msg.value`.
+    - **Relayer Logic**: Validate inputs; transfer to recipient first.

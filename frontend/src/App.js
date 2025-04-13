@@ -3,7 +3,6 @@ import { Web3Provider } from './contexts/Web3Context';
 import { MixerProvider } from './contexts/MixerContext';
 import Header from './components/Header';
 import MixerInterface from './components/MixerInterface';
-import NotesList from './components/NotesList';
 import Info from './components/Info';
 import Footer from './components/Footer';
 import './App.css';
@@ -15,8 +14,6 @@ function App() {
     switch (activeSection) {
       case 'mixer':
         return <MixerInterface />;
-      case 'notes':
-        return <NotesList />;
       case 'info':
         return <Info />;
       default:

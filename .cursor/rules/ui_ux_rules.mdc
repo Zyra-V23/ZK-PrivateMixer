@@ -1,0 +1,57 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Guidelines for UI/UX design, focusing on clarity, fluidity, and integrating the Uzumaki/Void aesthetic.
+globs: ["frontend/src/**/*.js", "frontend/src/**/*.css"] # Apply to frontend components and styles
+alwaysApply: true
+---
+
+- **Core Principle: Fluidity & Clarity First**
+    - **Goal**: Ensure deposit and withdrawal flows are intuitive, minimize steps, and reduce cognitive load.
+    - **Simplicity**: Present only necessary information and actions at each stage. Avoid clutter.
+    - **Guidance**: Lead the user clearly through multi-step processes (like withdrawal).
+    - **Clarity over Theme**: While the theme is important, user understanding and ease of use take precedence. If a thematic element confuses the flow, simplify it.
+
+- **Uzumaki/Void Aesthetic Integration**
+    - **Palette**:
+        - **Base**: Predominantly dark (e.g., deep blues, dark greys/charcoal, near-black).
+        - **Text**: High contrast (e.g., off-white, light grey) for readability.
+        - **Accents**: Use sparingly for key actions, highlights, or errors. Consider a specific "void blue/purple" for primary actions and a thematic red (like the reference image) for errors or destructive actions.
+    - **Motifs (Subtle)**:
+        - Incorporate spiral or abstract "void" elements subtly. Examples: faint background textures, loading spinners, section borders, hover effects.
+        - **Avoid**: Overuse that makes the UI busy or distracting. The theme should enhance, not dominate.
+    - **Typography**:
+        - Select a clean, highly readable sans-serif font for body text and UI elements.
+        - A slightly stylized, thematic font *may* be used for main headings (`h1`, `h2`) **only if** it remains easily legible and fits the overall aesthetic.
+    - **Animation & Transitions**:
+        - Use smooth, subtle transitions between states or views (e.g., fades).
+        - Loading animations (e.g., pulsing/spinning spirals) should be clean and not overly long or jarring.
+
+- **Component & Flow Specifics**
+    - **Layout**: Maintain a consistent core layout (Header, Main Content, Footer). Use clear navigation (e.g., tabs in Header).
+    - **Buttons**: Clear, concise action labels. Consistent styling for primary, secondary, and disabled states. Ensure sufficient size for touch targets.
+    - **Inputs/Textareas**: Clear labels, placeholder text for guidance (e.g., note format). Provide immediate visual feedback for validation (e.g., border color change on note parse error).
+    - **Deposit Flow**: Straightforward denomination selection, clear "Deposit" button. Post-deposit flow must seamlessly transition to the Note Backup section.
+    - **Note Backup UI**:
+        - **Prominence**: Make this section visually distinct and unavoidable after deposit.
+        - **Warnings**: Use strong visual cues (e.g., icons 🚨, color) and concise text for security warnings.
+        - **Actions**: Clear "Copy" and "Download" buttons with feedback on success/failure (e.g., brief message "Copied!").
+    - **Withdrawal Flow**:
+        - Guide the user: 1. Input Note & Recipient -> 2. (Trigger Proof Generation - show loading) -> 3. Confirm Withdrawal Tx.
+        - Provide clear feedback during proof generation (this can take time).
+    - **Status Messages**:
+        - Use consistent placement (e.g., toasts, dedicated message area).
+        - Clear visual distinction between Info, Success, and Error states (color, icons).
+        - Messages should be concise and user-friendly. Avoid technical jargon where possible.
+
+- **Clarity & Help**
+    - **Tooltips**: Use for brief explanations of technical terms on hover (e.g., "Nullifier", "Commitment").
+    - **Help Text**: Place concise instructions or format examples near relevant inputs.
+    - **Info/Education Section**: Keep explanations simple and focused on user benefit (privacy) and core concepts (how the link is broken). Use visuals/diagrams if helpful.
+
+- **Technical Considerations**
+    - **Responsiveness**: Ensure layout adapts cleanly to mobile, tablet, and desktop views using CSS media queries. Test on different screen sizes.
+    - **Accessibility (A11y)**: Maintain good color contrast ratios. Ensure keyboard navigability. Use semantic HTML elements. Provide ARIA attributes where necessary.

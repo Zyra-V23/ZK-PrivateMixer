@@ -1,6 +1,6 @@
 # Task ID: 2
 # Title: Implement Web3 Wallet Integration
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: high
 # Description: Develop secure Web3 wallet integration to allow users to connect and interact with the ZK Mixer.
@@ -11,9 +11,9 @@ Implement seamless Web3 wallet integration with the ZK Mixer interface. Support 
 Verify wallet connection with different providers. Test account switching behavior. Validate network detection and switching. Verify transaction signing and sending. Test connection persistence across page reloads.
 
 # Subtasks:
-## 1. Review and Adapt Project Rules for Web3 Wallet Integration [pending]
+## 1. Review and Adapt Project Rules for Web3 Wallet Integration [done]
 ### Dependencies: None
-### Description: Review existing project rules and adapt or create new rules relevant to Web3 wallet integration, security, and user experience.
+### Description: 
 ### Details:
-Focus on rules concerning wallet connection standards, transaction signing security, network detection, and error handling for wallet interactions.
+
 

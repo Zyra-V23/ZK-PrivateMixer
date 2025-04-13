@@ -1,19 +1,11 @@
 # Task ID: 6
-# Title: Implement Relayer Service (Optional)
+# Title: Deploy ZK-PrivateMixer to Testnet (Sepolia)
 # Status: pending
-# Dependencies: 3
-# Priority: medium
-# Description: Develop an optional relayer service to allow users to withdraw funds without having ETH for gas.
+# Dependencies: 3, 5
+# Priority: critical
+# Description: Deploy the functional ZK-PrivateMixer contracts and basic UI to the Sepolia testnet.
 # Details:
-Create a basic relayer service that can submit withdrawal transactions on behalf of users. Implement a simple fee mechanism where the relayer takes a small portion of the withdrawn amount. Add relayer API endpoints for submitting withdrawal proofs. Implement proof validation before submission to the blockchain. Create simple relayer web interface integration. Implement relayer status monitoring. Add appropriate security measures to prevent relayer abuse.
+1. Configure Hardhat for Sepolia deployment (RPC URL, private key via .env). 2. Write/refine deployment scripts in `/scripts` for `ZKMixer.sol`, `Verifier.sol`, and `PoseidonT3.sol`. 3. Ensure scripts handle library linking correctly. 4. Perform deployment to Sepolia. 5. Verify contract interactions on Sepolia Etherscan. 6. Configure frontend environment variables (`.env`) with deployed Sepolia contract addresses. 7. Deploy frontend build (e.g., Vercel, Netlify) connected to Sepolia.
 
 # Test Strategy:
-Test relayer functionality for valid withdrawals. Verify fee mechanism works correctly. Test relayer resistance to invalid proof submissions. Validate transaction success rates through the relayer. Test the UI integration with the relayer service.
-
-# Subtasks:
-## 1. Review and Adapt Project Rules for Relayer Implementation [pending]
-### Dependencies: None
-### Description: Review existing project rules and adapt or create new rules regarding relayer services, fee structures, and secure API design.
-### Details:
-Focus on rules for secure API development, proper fee calculation and transparency, error handling in distributed systems, and economic incentives.
-
+Perform successful deployment. Test deposit and withdrawal flow end-to-end on Sepolia via the deployed UI. Verify transactions and contract state on Sepolia Etherscan.

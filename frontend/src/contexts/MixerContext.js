@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useWeb3 } from './Web3Context';
 
-// Future import of ZK Mixer contract ABI
+// TODO: Import the actual ZK Mixer contract ABI
 // import ZKMixerABI from '../abis/ZKMixer.json';
 
 // Create context
@@ -10,178 +10,151 @@ export const MixerContext = createContext();
 
 // Context provider
 export const MixerProvider = ({ children }) => {
-  const { provider, signer, account, isConnected } = useWeb3();
+  // const { provider, signer, account, chainId, isConnected } = useWeb3(); // Added chainId
+  const { /* provider, */ signer, /* account, */ chainId, isConnected } = useWeb3(); // Commented out unused vars for now
   const [mixerContract, setMixerContract] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [commitments, setCommitments] = useState([]);
-  const [notes, setNotes] = useState([]);
-  const [denomination, setDenomination] = useState('0.1');
-  
-  // Contract address - change based on network
-  // Note: This will be updated with the actual deployed contract address
-  const MIXER_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
+  const [message, setMessage] = useState(null); // To display success/error messages
+
+  // Contract address - TODO: Update with actual deployed contract addresses per chainId
+  const MIXER_CONTRACT_ADDRESS = process.env.REACT_APP_MIXER_CONTRACT_ADDRESS || "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Example for localhost
 
   // Initialize contract when signer is available
   useEffect(() => {
-    if (signer && isConnected) {
+    if (signer && isConnected && MIXER_CONTRACT_ADDRESS && ethers.utils.isAddress(MIXER_CONTRACT_ADDRESS)) {
       try {
-        // Commented until we have the actual ABI
+        console.log(`Initializing contract at ${MIXER_CONTRACT_ADDRESS} on chain ${chainId}`);
+        // TODO: Uncomment and use actual ABI when available
         // const contract = new ethers.Contract(MIXER_CONTRACT_ADDRESS, ZKMixerABI.abi, signer);
         // setMixerContract(contract);
-        
-        // Load data from localStorage
-        loadStoredNotes();
+        // console.log("Mixer contract initialized");
+        console.warn("Mixer contract initialization is mocked - ABI needed.");
+        // Mock contract object for now to allow UI interaction
+        setMixerContract({ address: MIXER_CONTRACT_ADDRESS }); 
       } catch (error) {
         console.error("Error initializing contract:", error);
+        setMessage({ type: 'error', text: 'Failed to initialize contract.' });
+        setMixerContract(null); // Ensure contract is null on error
       }
-    }
-  }, [signer, isConnected]);
-
-  // Load locally stored notes
-  const loadStoredNotes = useCallback(() => {
-    if (account) {
-      try {
-        const storedNotes = localStorage.getItem(`zk-mixer-notes-${account}`);
-        if (storedNotes) {
-          setNotes(JSON.parse(storedNotes));
+    } else {
+        setMixerContract(null); // Clear contract if signer/connection/address is lost
+        if (isConnected && (!MIXER_CONTRACT_ADDRESS || !ethers.utils.isAddress(MIXER_CONTRACT_ADDRESS)) ){
+             console.error("Invalid or missing MIXER_CONTRACT_ADDRESS");
+             setMessage({ type: 'error', text: 'Contract address is invalid or missing.' });
         }
-      } catch (error) {
-        console.error("Error loading notes:", error);
-      }
     }
-  }, [account]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signer, isConnected, chainId]); // Rerun if chainId changes
 
-  // Store notes locally
-  const storeNotes = useCallback((updatedNotes) => {
-    if (account) {
-      try {
-        localStorage.setItem(`zk-mixer-notes-${account}`, JSON.stringify(updatedNotes));
-      } catch (error) {
-        console.error("Error storing notes:", error);
-      }
-    }
-  }, [account]);
-
-  // Generate a commitment (simulated for now)
-  const generateCommitment = useCallback(() => {
-    // In a real implementation, this would use the circomlibjs library
-    // to generate a commitment using Poseidon hash
-    const randomSecret = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-    const randomNullifier = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-    
-    // Simulate a commitment hash (in production would be a Poseidon hash)
-    const commitment = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
-        ['bytes32', 'bytes32'],
-        [randomSecret, randomNullifier]
-      )
-    );
-    
-    return {
-      secret: randomSecret,
-      nullifier: randomNullifier,
-      commitment
-    };
-  }, []);
 
   // Make a deposit
-  const deposit = useCallback(async () => {
-    if (!mixerContract || !signer) {
-      alert("Contract not initialized or wallet not connected");
-      return;
+  // Expects the pre-calculated commitment based on nullifier/secret generated by useNoteManagement
+  const deposit = useCallback(async (commitment, depositDenomination) => {
+    // Use a local variable for contract instance to avoid stale closure issues
+    const currentMixerContract = mixerContract;
+    setMessage(null); // Clear previous messages
+
+    if (!currentMixerContract || !signer) {
+      console.error("Contract not initialized or wallet not connected");
+      setMessage({ type: 'error', text: "Contract not initialized or wallet not connected" });
+      return false; // Indicate failure
     }
+    if (!commitment || !depositDenomination) {
+        console.error("Commitment and denomination are required for deposit.");
+        setMessage({ type: 'error', text: "Commitment and denomination are required." });
+        return false;
+    }
+
+    console.log(`Attempting deposit with commitment: ${commitment}, value: ${depositDenomination} ETH`);
 
     try {
       setIsLoading(true);
-      
-      // Generate commitment
-      const { secret, nullifier, commitment } = generateCommitment();
-      
-      // In a real implementation:
-      // const tx = await mixerContract.deposit(commitment, {
-      //   value: ethers.utils.parseEther(denomination)
-      // });
-      // await tx.wait();
-      
-      // Simulate successful transaction
-      console.log("Simulating deposit with:", { commitment, value: denomination });
-      
-      // Save note
-      const newNote = {
-        id: Date.now(),
-        secret,
-        nullifier,
-        commitment,
-        denomination,
-        timestamp: Date.now(),
-        status: 'deposited'
-      };
-      
-      const updatedNotes = [...notes, newNote];
-      setNotes(updatedNotes);
-      storeNotes(updatedNotes);
-      
-      return newNote;
+
+      // --- Actual Contract Interaction (TODO: Uncomment and adapt when ABI is ready) ---
+      /*
+      const tx = await currentMixerContract.deposit(commitment, {
+         value: ethers.utils.parseEther(depositDenomination)
+      });
+      console.log("Deposit transaction sent:", tx.hash);
+      setMessage({ type: 'info', text: `Deposit transaction sent: ${tx.hash}. Waiting for confirmation...` });
+
+      const receipt = await tx.wait();
+      console.log("Deposit transaction confirmed:", receipt);
+
+      if (receipt.status === 1) {
+           setMessage({ type: 'success', text: 'Deposit successful!' });
+           // TODO: Potentially emit an event or return data needed for note generation/backup UI trigger
+           return true; // Indicate success
+      } else {
+           console.error("Deposit transaction failed:", receipt);
+           setMessage({ type: 'error', text: 'Deposit transaction failed. Check console.' });
+           return false; // Indicate failure
+      }
+      */
+      // --- End Actual Contract Interaction ---
+
+      // --- Mock Success --- 
+      console.log("Simulating successful deposit interaction...");
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+      setMessage({ type: 'success', text: 'Deposit successful (Simulation)!' });
+      setIsLoading(false);
+      return true; // Indicate simulated success
+      // --- End Mock Success ---
+
     } catch (error) {
       console.error("Error making deposit:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [mixerContract, signer, denomination, generateCommitment, notes, storeNotes]);
-
-  // Make a withdrawal (simulated for now)
-  const withdraw = useCallback(async (noteId, recipient) => {
-    if (!mixerContract || !signer) {
-      alert("Contract not initialized or wallet not connected");
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      
-      // Find the note
-      const note = notes.find(n => n.id === noteId);
-      if (!note) {
-        throw new Error("Note not found");
+      // Attempt to parse revert reason if available
+      let reason = error.message; // Default to general message
+      if (error.data && error.data.message) { // Standard JSON-RPC error
+        reason = error.data.message;
+      } else if (error.reason) { // Ethers-specific revert reason
+        reason = error.reason;
+      } else if (error.error && error.error.message) { // Nested error object
+         reason = error.error.message;
       }
-      
-      // In a real implementation, we would generate the ZK proof using snarkjs
-      // and call the contract to make the withdrawal
-      
-      // Simulate successful transaction
-      console.log("Simulating withdrawal with:", { 
-        nullifier: note.nullifier, 
-        recipient, 
-        denomination: note.denomination 
-      });
-      
-      // Update note status
-      const updatedNotes = notes.map(n => 
-        n.id === noteId ? { ...n, status: 'withdrawn' } : n
-      );
-      
-      setNotes(updatedNotes);
-      storeNotes(updatedNotes);
-      
-      return true;
-    } catch (error) {
-      console.error("Error making withdrawal:", error);
-      throw error;
-    } finally {
+      setMessage({ type: 'error', text: `Deposit failed: ${reason}` });
       setIsLoading(false);
+      return false; // Indicate failure
     }
-  }, [mixerContract, signer, notes, storeNotes]);
+  }, [mixerContract, signer]); // Dependencies: contract instance and signer
+
+  // Make a withdrawal (stub - needs full implementation)
+  // Will need note components (nullifier, secret), proof, and public inputs
+  const withdraw = useCallback(async (/* note, recipient, proof, publicArgs */) => {
+     const currentMixerContract = mixerContract;
+     setMessage(null);
+
+    if (!currentMixerContract || !signer) {
+      console.error("Contract not initialized or wallet not connected");
+      setMessage({ type: 'error', text: "Contract not initialized or wallet not connected" });
+      return false;
+    }
+
+    // TODO: Add full withdrawal logic: 
+    // 1. Receive parsed note (nullifier, secret), recipient address
+    // 2. Generate Merkle proof using an off-chain tree structure/library
+    // 3. Fetch required public inputs (e.g., contract's current root)
+    // 4. Generate ZK proof using snarkjs and web worker
+    // 5. Format proof and public inputs for the contract call
+    // 6. Call currentMixerContract.withdraw(...) 
+    // 7. Handle success/error/loading states
+
+    console.warn("Withdraw function is not implemented yet.");
+    setMessage({ type: 'info', text: "Withdrawal functionality is not yet implemented." });
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate thinking
+    setIsLoading(false);
+    return false; // Placeholder
+
+  }, [mixerContract, signer]);
 
   // Export context values and functions
   const contextValue = {
     mixerContract,
-    denomination,
-    setDenomination,
-    notes,
     isLoading,
-    deposit,
-    withdraw
+    message, // Provide loading state and messages to the UI
+    deposit, // The refactored deposit function
+    withdraw // The placeholder withdraw function
   };
 
   return (

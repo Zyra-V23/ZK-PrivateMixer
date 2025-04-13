@@ -1,19 +1,73 @@
 # Task ID: 5
-# Title: Design and Implement ZK Mixer User Interface
-# Status: pending
+# Title: Design and Implement ZK Mixer UI (Uzumaki Aesthetic)
+# Status: done
 # Dependencies: 3, 4
 # Priority: high
-# Description: Create an intuitive and user-friendly web interface for the ZK Mixer with clear explanations of privacy features.
+# Description: Create an intuitive web interface for the ZK Mixer, adopting the Uzumaki aesthetic (dark palette, spirals, Junji Ito inspired).
 # Details:
-Design and implement the complete user interface for the ZK Mixer. Create clear, step-by-step deposit and withdrawal flows. Add informative tooltips and help text explaining the privacy model. Implement transaction status tracking with clear indicators. Add note management interface with security warnings. Create responsive design that works on desktop and mobile browsers. Add dark/light mode support. Implement loading states and error handling with user-friendly messages. Create simple privacy education section explaining how the mixer works.
+Design and implement the complete user interface. Create clear deposit/withdrawal flows. Implement transaction status tracking. Add note management interface. Create responsive design. **Integrate Uzumaki theme:** Use a dark color palette, incorporate spiral motifs subtly in UI elements or backgrounds, consider spiral-based loading animations. Add informative tooltips explaining privacy and linking to the Uzumaki narrative. Create a simple privacy education section.
 
 # Test Strategy:
-Test user flows for deposits and withdrawals. Validate that UI clearly explains the privacy process. Test responsive design on different devices. Verify error handling for various edge cases. Test the clarity of the privacy education content.
+Test user flows. Validate UI clearly explains privacy. Test responsive design. Verify error handling. Test Uzumaki theme elements render correctly and are not overly intrusive.
 
 # Subtasks:
-## 1. Review and Adapt Project Rules for User Interface Design [pending]
+## 1. Review and Adapt Project Rules for User Interface Design [done]
 ### Dependencies: None
 ### Description: Review existing project rules and adapt or create new rules related to web UI design, privacy-focused UX, and clear communication of complex cryptographic concepts.
 ### Details:
 Focus on rules for consistent UI components, clear communication of privacy mechanisms, proper handling of sensitive information in the UI, and accessibility standards.
+
+## 2. Implement Core Layout & Navigation [done]
+### Dependencies: 5.1
+### Description: Set up the main application layout including Header, Footer, and the main content area switching.
+### Details:
+Ensure Header allows switching between Deposit/Withdraw/Info sections. Footer contains basic links/info. Main content area renders the active component (`MixerInterface`, `NotesList`, `Info`).
+
+## 3. Implement Deposit UI Flow [done]
+### Dependencies: 5.2
+### Description: Build the UI elements specific to the deposit action within MixerInterface.
+### Details:
+Implement denomination selector dropdown. Ensure Deposit button triggers `handleDeposit` logic correctly. Disable elements during loading state.
+
+## 4. Implement Withdrawal UI Flow [done]
+### Dependencies: 5.2
+### Description: Build the UI elements specific to the withdrawal action within MixerInterface.
+### Details:
+Implement the textarea for pasting the secret note. Implement the input field for the recipient address. Ensure Withdraw button triggers `handleWithdraw` logic and handles disabled states correctly.
+
+## 5. Refine Note Backup UI [done]
+### Dependencies: 5.3
+### Description: Improve the display and user guidance for backing up the secret note after deposit.
+### Details:
+Review and enhance the `.note-backup-section` in `MixerInterface`. Ensure warnings are clear and prominent. Verify Copy/Download buttons work reliably. Add any necessary styling improvements.
+
+## 6. Implement Transaction Status Display [done]
+### Dependencies: 5.3, 5.4
+### Description: Ensure loading, success, and error messages from the context are clearly displayed to the user.
+### Details:
+Review message display logic in `MixerInterface`. Ensure loading indicators are obvious. Style success/error/info messages distinctively. Handle potential display of both context and local messages if necessary.
+
+## 7. Apply Uzumaki CSS Theme [done]
+### Dependencies: 5.2, 5.3, 5.4, 5.5, 5.6
+### Description: Implement the dark, spiral-themed aesthetic across the application using CSS.
+### Details:
+Define a dark color palette in `App.css` or theme variables. Apply dark background and appropriate text colors. Incorporate subtle spiral motifs (e.g., background patterns, borders, loading spinners). Consider using a thematic font if desired. Ensure consistency across all components.
+
+## 8. Implement Responsive Design CSS [done]
+### Dependencies: 5.7
+### Description: Ensure the UI is usable and looks acceptable on various screen sizes (mobile, tablet, desktop).
+### Details:
+Use CSS media queries to adjust layout, font sizes, and element spacing for different viewports. Test on common device resolutions. Ensure buttons and inputs remain easily tappable on mobile.
+
+## 9. Add Tooltips and Help Text [done]
+### Dependencies: 5.3, 5.4, 5.5
+### Description: Provide contextual information to guide the user and explain privacy aspects.
+### Details:
+Add tooltips to explain concepts like 'secret note', 'commitment', 'nullifier hash' where they appear implicitly or explicitly. Add help text near input fields explaining expected formats or security implications (e.g., note backup warning).
+
+## 10. Create Privacy Education Section/Modal [done]
+### Dependencies: 5.2
+### Description: Develop a simple, accessible explanation of how the mixer provides privacy.
+### Details:
+Create a new component (e.g., `Info.js` or a modal triggered from the Header/Footer). Explain the basic concept of ZK proofs, commitments, nullifiers, and how they break the link between deposit and withdrawal, using clear language and potentially simple diagrams. Link to more technical resources if appropriate.
 

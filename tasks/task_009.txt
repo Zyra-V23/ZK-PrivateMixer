@@ -1,19 +1,11 @@
 # Task ID: 9
-# Title: Implement Security and Privacy Enhancements
+# Title: Research RISC Zero SDK and Capabilities
 # Status: pending
-# Dependencies: 3, 4
-# Priority: high
-# Description: Add additional security and privacy features to strengthen the ZK Mixer implementation.
+# Dependencies: 3
+# Priority: medium
+# Description: Investigate the RISC Zero zkVM, Rust SDK, and Ethereum integration.
 # Details:
-Implement additional security and privacy enhancements for the ZK Mixer. Add timing protection for web interactions to prevent timing attacks. Implement secure random number generation with entropy gathering. Add browser fingerprinting protection mechanisms. Improve gas efficiency for contract interactions. Create secure connection handling with blockchain nodes. Implement multiple deposit denominations if gas-efficient. Add contract upgradeability with secure governance.
+1. Review RISC Zero documentation (risczero.com/docs). 2. Explore the Rust SDK and example projects (github.com/risc0). 3. Understand the process of writing, proving, and verifying Rust code using the zkVM. 4. Investigate the `risc0-ethereum` tooling for on-chain verification (Bonsai Network, verifier contracts). 5. Assess the feasibility of implementing the mixer logic in Rust/RISC Zero.
 
 # Test Strategy:
-Test security enhancements against common attack vectors. Verify random number generation quality. Test gas consumption for different operations. Validate upgradeability mechanisms. Review security practices with standard audit techniques.
-
-# Subtasks:
-## 1. Review and Adapt Project Rules for Security Enhancements [pending]
-### Dependencies: None
-### Description: Review existing project rules and adapt or create new rules related to security best practices, privacy protections, and secure cryptographic implementations.
-### Details:
-Focus on rules for timing attack prevention, secure RNG, browser security, and contract security patterns.
-
+Produce a summary document outlining RISC Zero's architecture, development workflow, Ethereum integration options, and potential challenges/benefits for the Uzumaki vision.

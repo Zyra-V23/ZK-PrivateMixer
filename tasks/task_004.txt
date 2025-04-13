@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Implement Key Management and Note System
-# Status: pending
+# Status: done
 # Dependencies: 1, 2
 # Priority: high
 # Description: Develop a secure system for generating, storing, and managing commitment notes for deposits and withdrawals.
@@ -11,9 +11,39 @@ Implement secure client-side key and note generation. Create a system for genera
 Verify secure random number generation. Test note format and validation. Check note persistence across sessions. Validate import/export functionality. Test clipboard integration. Verify recovery mechanisms.
 
 # Subtasks:
-## 1. Review and Adapt Project Rules for Key Management [pending]
+## 1. Review and Adapt Project Rules for Key Management [done]
 ### Dependencies: None
 ### Description: Review existing project rules and adapt or create new rules relevant to secure key generation, note handling, and client-side security.
 ### Details:
-Focus on rules for secure random number generation, local storage encryption, note format standards, and secure display of sensitive information.
+Focus on rules for secure random number generation, avoiding persistent browser storage, mandatory user backup flow, standard note format, and clear UI warnings.
+
+## 2. Create useNoteManagement Hook [done]
+### Dependencies: 4.1
+### Description: Implement the core React hook for generating, formatting, and parsing secret notes.
+### Details:
+Create `frontend/src/hooks/useNoteManagement.js`. Implement `generateNote` using `window.crypto.getRandomValues`, format note string (zkvoid-note-v1...), implement `parseNote` to validate format and extract nullifier/secret.
+
+## 3. Implement Real Poseidon Hash Utility (JS) [done]
+### Dependencies: 4.2
+### Description: Create a utility function using circomlibjs to compute the Poseidon hash, consistent with contracts/circuits.
+### Details:
+Create `frontend/src/utils/cryptoUtils.js`. Install/verify `circomlibjs`. Implement `poseidonHash([input1, input2])` ensuring input/output formats match requirements for commitment calculation.
+
+## 4. Integrate Note Generation & Backup UI in Deposit Flow [done]
+### Dependencies: 4.2, 4.3
+### Description: Use the hook and hash utility in the deposit component to generate notes and show backup options.
+### Details:
+In `MixerInterface.js`, import `useNoteManagement` and `poseidonHash`. In `handleDeposit`, call `generateNote`, calculate commitment using `poseidonHash([nullifier, secret])`, call context `deposit(commitment)`. On success, display the generated note string (`noteToBackup`) with Copy/Download buttons and security warnings.
+
+## 5. Integrate Note Parsing in Withdraw Flow [done]
+### Dependencies: 4.2
+### Description: Use the hook in the withdraw component to parse the user-provided note.
+### Details:
+In `MixerInterface.js`, import `useNoteManagement`. In `handleWithdraw`, get the note string from user input (`noteInput`), call `parseNote(noteInput)`. Use the returned `nullifier` and `secret` for subsequent proof generation steps (to be implemented). Handle parsing errors.
+
+## 6. Add Frontend Tests for Note Management [done]
+### Dependencies: 4.4, 4.5
+### Description: Implement unit tests for the note hook and potentially component tests for the UI flows.
+### Details:
+Create test file for `useNoteManagement.js`. Test `generateNote` format, `parseNote` for valid/invalid inputs. Consider adding React Testing Library tests for `MixerInterface` to verify the note backup UI appears correctly and parsing is triggered.
 

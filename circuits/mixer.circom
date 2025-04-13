@@ -1,9 +1,9 @@
 pragma circom 2.0.0;
 
-// Includes will be resolved via -l flag pointing to node_modules/circomlib/circuits
-include "poseidon.circom";
-include "smt/smtverifier.circom";
-include "comparators.circom"; // For the IsZero component
+// Includes will be resolved via -l flag pointing to node_modules/circomlib/circuits and circuits/
+include "poseidon.circom"; // From circomlib
+include "comparators.circom"; // From circomlib
+include "lib/verify_merkle_path.circom"; // Our new local library file
 
 /*
  * @title Mixer Circuit
@@ -19,7 +19,7 @@ template Mixer(levels) {
     
     // Merkle proof
     signal input pathElements[levels]; // Path elements (siblings) from leaf to root
-    signal input pathIndices[levels];  // Path indices (0 for left, 1 for right)
+    signal input pathIndices[levels];  // Path indices (0/1)
 
     // --- Public Inputs ---
     signal input root;             // Known Merkle root the proof is against
@@ -53,12 +53,10 @@ template Mixer(levels) {
     signal commitment <== commitmentHasher.out;
 
     // --- Calculate and verify nullifier hash ---
-    // Enhanced nullifierHash = Poseidon(nullifier, recipient, chainId)
-    // Including recipient and chainId prevents replay attacks across recipients and chains
-    component nullifierHasher = Poseidon(3);
+    // Changed to Poseidon(2) using nullifier and chainId for compatibility with PoseidonT3.sol
+    component nullifierHasher = Poseidon(2); 
     nullifierHasher.inputs[0] <== nullifier;
-    nullifierHasher.inputs[1] <== recipient;
-    nullifierHasher.inputs[2] <== chainId;
+    nullifierHasher.inputs[1] <== chainId;
     
     // --- Constraints ---
     // 1. Verify the calculated nullifier hash matches the public input
@@ -70,20 +68,15 @@ template Mixer(levels) {
     feeValid.in[1] <== refund + 1; // fee must be <= refund
     feeValid.out === 1;
 
-    // 3. Check Merkle Proof: Verify the commitment is part of the tree identified by root
-    component merkleProof = SMTVerifier(levels);
-    merkleProof.enabled <== 1;       // Enable the verifier
-    merkleProof.fnc <== 0;           // Function code 0 for inclusion proof
+    // 3. Check Merkle Proof: Verify the commitment is part of the tree identified by root using VerifyMerklePath
+    component merkleProof = VerifyMerklePath(levels);
+    merkleProof.leaf <== commitment; // Use the calculated commitment as the leaf
     merkleProof.root <== root;       // Public root
-    merkleProof.key <== commitment;  // The leaf (commitment) we are proving inclusion for
-    merkleProof.value <== 1;         // Assuming value 1 indicates inclusion
-    merkleProof.oldKey <== 0;        // Dummy value for inclusion proof
-    merkleProof.oldValue <== 0;      // Dummy value for inclusion proof
-    merkleProof.isOld0 <== 1;        // Indicates the old leaf was 0 (necessary for inclusion proof logic in SMT)
-    
     for (var i = 0; i < levels; i++) {
-        merkleProof.siblings[i] <== pathElements[i]; // Map pathElements to siblings
+        merkleProof.pathElements[i] <== pathElements[i]; // Siblings
+        merkleProof.pathIndices[i] <== pathIndices[i];   // Path direction (0 or 1)
     }
+    // VerifyMerklePath enforces the root constraint internally, no need for .out === 1 here.
 
     // Future enhancement: Add range proofs for the relayer fee to ensure it's within reasonable bounds
 }

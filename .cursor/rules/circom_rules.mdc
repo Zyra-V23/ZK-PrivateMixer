@@ -16,14 +16,14 @@ alwaysApply: true
     - **File Naming & Organization**:
         - Store all circuit files within the `/circuits` directory.
         - Use descriptive names for circuit files (e.g., `mixer.circom`, `poseidon_hasher.circom`).
-        - Keep related utility components or sub-circuits in clearly named files.
+        - **Local Libraries:** Place crucial external circuit components (like hashers or verifiers copied from other sources) in a dedicated `/circuits/lib/` directory and document their origin clearly. This ensures stability and availability.
         - **Remove obsolete files**: Do not keep old versions with suffixes like `_old.circom` in the codebase.
     - **Comments & Readability**:
         - Use `//` for single-line and `/* ... */` for multi-line comments.
         - Document the purpose of each `template`, its inputs/outputs, and any complex internal logic.
         - Explain the rationale behind non-obvious constraints.
     - **Naming Conventions**:
-        - `UpperCamelCase` for `template` names (e.g., `MerkleTreeChecker`, `Mixer`).
+        - `UpperCamelCase` for `template` names (e.g., `VerifyMerklePath`, `Mixer`).
         - `camelCase` for `signal`, `var`, and `component` instance names (e.g., `nullifierHash`, `intermediateSignal`, `commitmentHasher`).
 
 - **2. Signals & I/O**
@@ -67,106 +67,44 @@ alwaysApply: true
         - Use `assert(condition);` (e.g., from `circomlib/circuits/comparators.circom`) *during development* to verify assumptions about signal values.
         - **Remove or comment out `assert()` statements before production deployment**, as they add unnecessary constraints.
 
-- **4. Modularity & Libraries**
+- **4. Modularity & Libraries (`circomlib` & Local)**
     - **Template Design**: Encapsulate reusable logic within `template`s. Pass parameters (like `levels` for trees) to make templates flexible.
     - **Component Usage**: Instantiate templates using `component name = TemplateName(params);`.
     - **Using `circomlib`**:
-        - **Strongly Prefer `circomlib` (v2+)**: Use audited components for standard operations:
+        - **Verify Availability:** Before relying on a `circomlib` component, confirm its existence and exact path within the specific version installed in `node_modules` (e.g., using `ls` or `find`). Versions can differ significantly.
+        - **Prefer Standard Components:** Use audited components for standard operations:
             - Hashing: `Poseidon`
-            - Merkle Trees: `MerkleTreeChecker`
             - Comparisons: `LessThan`, `IsEqual`, `IsZero`
             - Bit Operations: `Num2Bits`, `Num2Bits_strict`, `Bits2Num`
-        - Avoid implementing custom cryptographic primitives.
+        - Avoid implementing custom cryptographic primitives unless absolutely necessary and audited.
+    - **Using Local Libraries (`circuits/lib/`)**:
+        - For crucial, complex, or potentially version-sensitive components (like Merkle Tree verifiers), consider copying the known-good source code into `circuits/lib/` and importing it locally (e.g., `include "../lib/verify_merkle_path.circom";`).
+        - Document the origin and version of any copied components.
     - **Include Management**:
-        - Use consistent include paths. Prefer relative paths from the current file to `node_modules/circomlib/circuits/` if using `npm/yarn` structure directly.
-        - If copying library files locally (like we did for setup), ensure all relative paths *within* the copied files are updated to remove `../`. Use `include "local_file.circom";`.
+        - Use consistent relative paths for includes.
+        - Provide all necessary library paths to the `circom` compiler using the `-l` flag (e.g., `circom ... -l node_modules/circomlib/circuits -l circuits`).
 
-- **5. Optimization**
-    - **Constraint Minimization**: Always aim to express the required logic using the fewest possible constraints. This directly impacts proving time and cost.
-    - **Signal Reuse**: Combine related operations to reduce intermediate signals.
-        ```circom
-        // Instead of two separate IsZero checks
-        signal nonZeroSecret <== secret * nullifier; // Will be non-zero only if both are non-zero
-        component inputCheck = IsZero();
-        inputCheck.in <== nonZeroSecret;
-        signal inputsValid <== 1 - inputCheck.out;
-        inputsValid === 1; // Ensures both are non-zero
-        ```
-    - **Efficient Comparisons**: When checking if `x <= y`, prefer `y - x + 1 > 0` over `LessThan` if possible to reduce constraints.
-    - **Efficient Hashing**: Use `Poseidon` hash function. It is significantly more constraint-efficient than Pedersen or SHA256 within Circom.
-    - **Bit Operations**: Use `Num2Bits` / `Bits2Num` carefully. Ensure the specified number of bits is correct. `Num2Bits_strict` adds constraints to verify the input fits within the specified bits.
-    - **Conditional Logic**: Implementing complex `if/else` logic can be expensive. Use components like `Mux1` (from `circomlib/circuits/mux1.circom`) or arithmetic tricks (e.g., `selector * value_if_true + (1 - selector) * value_if_false`) where appropriate.
+- **5. Hashing (Poseidon)**
+    - **Use Poseidon:** Employ the `Poseidon` template from `circomlib` for hashing within the circuit. It is significantly more constraint-efficient than Pedersen or SHA256.
+    - **Parameter Consistency:** Be aware that Poseidon implementations can vary based on internal parameters (rounds, constants, MDS matrix). Ensure the Circom version is compatible with JS/Solidity versions. See [zk_workflow.mdc](mdc:.cursor/rules/zk_workflow.mdc) for consistency checks.
+    - **Domain Separation:** If using the same hash function for different purposes, ensure inputs cannot overlap or use distinct Poseidon instances (e.g., `Poseidon(2)` vs `Poseidon(3)`).
 
-- **6. Security Considerations**
-    - **Input Validation**: Where feasible and critical, add constraints to validate private inputs (e.g., ensure a private key is within a certain range), though this adds cost.
-    - **Non-Zero Checks**: Always validate that sensitive inputs like `nullifier` and `secret` are non-zero.
-    - **Domain Separation**: If using the same hash function (e.g., Poseidon) for different purposes (e.g., hashing commitments vs. nullifiers), ensure inputs cannotider using different personalization constants/inputs for the hash.
-    - **Minimal Disclosure**: Reiterate: Do not expose private data through public inputs unless essential for verification.
-    - **Enhanced nullifierHash Structure**: To prevent replay attacks across different contexts, include contextual data in the nullifierHash:
-        ```circom
-        // Secure nullifierHash structure with enhanced protection
-        component nullifierHasher = Poseidon(3);
-        nullifierHasher.inputs[0] <== nullifier;      // Private value
-        nullifierHasher.inputs[1] <== recipient;      // Prevents recipient substitution
-        nullifierHasher.inputs[2] <== chainId;        // Prevents cross-chain replay
-        ```
-    - **Relayer Validation**: When using relayers, validate that if a fee is set, the relayer address is non-zero:
-        ```circom
-        // If fee > 0, relayer must be non-zero
-        component feeZeroCheck = IsZero();
-        feeZeroCheck.in <== fee;
-        signal feeIsZero <== feeZeroCheck.out;
-        
-        component relayerCheck = IsZero();
-        relayerCheck.in <== relayer;
-        signal relayerIsZero <== relayerCheck.out;
-        
-        signal validRelayerConfig <== feeIsZero + (1 - relayerIsZero);
-        validRelayerConfig >= 1;
-        ```
-    - **Replay Attack Prevention**: Include context-specific public inputs in the proof (like `recipient`, `relayer`, `fee`, `chainId`) and verify them in the circuit or contract to prevent a valid proof from being reused maliciously in a different context.
-    - **Hash Calculation Consistency**: 
-        - **CRITICAL**: Ensure that nullifierHash is calculated with the same inputs and ordering both in the circuit and in any external code (JavaScript, Solidity).
-        - When hashing multiple values, ensure the ordering is consistent across all implementations.
+- **6. Merkle Trees (Standard/Dense)**
+    - **Verifier Choice:**
+        - Use a standard Merkle tree verifier template (like the `VerifyMerklePath` example we adopted from external sources and placed in `circuits/lib/`) for verifying proofs generated by standard JS libraries (`merkletreejs`, `@zk-kit/incremental-merkle-tree`).
+        - **Avoid `SMTVerifier`** unless specifically working with Sparse Merkle Trees and a compatible JS proof generation library.
+    - **Required Inputs:** Standard verifiers typically require `leaf`, `root`, `pathElements[levels]`, and `pathIndices[levels]`. Ensure these are provided correctly.
+    - **Hasher Consistency:** The internal hash function used by the verifier template (e.g., `Poseidon(2)` inside `VerifyMerklePath`) MUST match the hash function used to generate the tree and proof in JS/Solidity.
 
-- **7. Testing & Workflow Integration**
-    - **Input Generation**: Create `.json` files with inputs for various test cases (success, failure, edge cases). Store these in a dedicated directory (e.g., `/inputs` or `/test/inputs`).
-        - **CRITICAL**: Never commit input files containing real private secrets/nullifiers to Git. Use `.gitignore`.
-        - **Input Format**: For enhanced mixer circuits, include all required parameters in test inputs:
-        ```json
-        {
-          "secret": "123...",
-          "nullifier": "456...",
-          "pathElements": [...],
-          "pathIndices": [...],
-          "root": "789...",
-          "nullifierHash": "abc...",
-          "recipient": "def...",
-          "relayer": "ghi...",
-          "fee": "1",
-          "refund": "10",
-          "chainId": "1"
-        }
-        ```
-    - **Witness & Proof Generation**: Use scripts (e.g., in `/scripts`) and `snarkjs` (or WASM generators) to calculate the witness (`.wtns`) and generate proofs (`proof.json`, `public.json`) for test inputs. Reference: [zk_workflow.mdc](mdc:.cursor/rules/zk_workflow.mdc).
-    - **Debugging**:
-        - Utilize the `.sym` file generated by `circom --sym` to map constraint failures back to source code lines.
-        - Systematically comment out sections of constraints to isolate failures.
-        - Use `assert()` during development.
-    - **Off-Chain Verification**: Always run `snarkjs groth16 verify` with the generated `verification_key.json`, `public.json`, and `proof.json` as a sanity check before attempting on-chain verification.
-    - **Persistent Bug Heuristic**: If the same compilation or runtime error persists after 3-4 focused attempts to fix it, proactively search for alternative approaches, known issues, or workarounds online before continuing with the same failing strategy. Discuss findings before changing approach significantly.
+- **7. Optimization**
+    - **Constraint Minimization**: Aim for the fewest possible constraints.
+    - **Signal Reuse**: Combine operations where feasible.
+    - **Efficient Comparisons/Hashing/Bit Operations**: Follow best practices mentioned previously.
+    - **Conditional Logic**: Use `Mux1` or arithmetic tricks carefully.
 
-- **8. Specific Component Guidelines**
-    - **SMTVerifier Usage**:
-        - **SMTLevIns Requirements**: When using SMTVerifier or components that rely on SMTLevIns:
-            - The **last sibling** in the path array **MUST be zero** (`pathElements[nLevels-1] === 0`)
-            - At least one **earlier sibling** (typically the second-to-last) **must be non-zero** to create a valid path construction
-            - These requirements are enforced by assertion in line 92 of SMTVerifier
-        - **Relationship between keys**: Ensure the relationship between `key`, `oldKey`, and `isOld0` follows the expected pattern. For inclusion proofs with new keys, use `isOld0 = 1`.
-        - **Path Construction**: For sparse Merkle trees, each sibling represents a node at the corresponding level of the tree. The indices array determines left/right direction.
-    - **Complete Input Validation**: When calculating nullifierHash or other cryptographic values, ensure all inputs (like nullifier and recipient) are properly constraints-validated before use to prevent attacks via manipulation of unchecked inputs.
-    - **Debugging SMT Issues**: 
-        - Start with simplified inputs (e.g., small integer values for secret and nullifier)
-        - Ensure cryptographic consistency using the actual circuit's hash functions
-        - Implement helper scripts to generate valid inputs (see `/scripts/generate_inputs.js`)
-        - Consider writing dedicated test circuits for specific sub-components like SMTVerifier
+- **8. Security Considerations**
+    - **Input Validation/Non-Zero Checks**: As detailed previously.
+    *   **Hash Consistency & Replay Protection**: Ensure cryptographic consistency across the stack (JS/Circom/Solidity) and include context (like `chainId`, `recipient`) in hashes or public inputs where needed to prevent replays. See [zk_workflow.mdc](mdc:.cursor/rules/zk_workflow.mdc).
+
+- **9. Testing & Workflow Integration**
+    *   Follow guidelines in [zk_workflow.mdc](mdc:.cursor/rules/zk_workflow.mdc). Emphasize testing with inputs generated consistently with circuit expectations.

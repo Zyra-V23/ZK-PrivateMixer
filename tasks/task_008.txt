@@ -1,19 +1,11 @@
 # Task ID: 8
-# Title: Develop Educational Content and Documentation
+# Title: Refactor Codebase with U-ZK Void Thematic Naming
 # Status: pending
-# Dependencies: 5
+# Dependencies: 3, 5, 6
 # Priority: medium
-# Description: Create comprehensive educational materials about the ZK Mixer, its privacy features, and usage guides.
+# Description: Rename contracts, functions, variables, events, and comments across Solidity, frontend, tests, and scripts to align with the Uzumaki/Void aesthetic.
 # Details:
-Develop clear, accessible educational content explaining how the ZK Mixer works. Create visual explanations of zero-knowledge proofs and their role in the mixer. Write user guides for deposits and withdrawals. Create a privacy FAQ addressing common questions. Develop a glossary of relevant terms. Add contextual help throughout the application. Create developer documentation for the codebase. Write deployment and configuration guides.
+Refactor codebase incorporating thematic names like `VoidMixer`, `enterVoid`, `emergeFromVoid`, `voidSigil`, `voidEcho`, `spiralMark`, etc. Scope includes: Solidity contracts (.sol), frontend interaction code (JS/TS), contract ABIs, tests (.cjs), deployment/utility scripts (.js), and documentation/comments. Requires careful updating of all references and ABIs.
 
 # Test Strategy:
-Review educational materials for accuracy and clarity. Test contextual help functionality. Verify that documentation covers all key aspects of the system. Get feedback on the understandability of complex privacy concepts.
-
-# Subtasks:
-## 1. Review and Adapt Project Rules for Educational Content [pending]
-### Dependencies: None
-### Description: Review existing project rules and adapt or create new rules regarding the creation and maintenance of educational content about complex cryptographic topics.
-### Details:
-Focus on rules for content accuracy, clarity of explanations for zero-knowledge concepts, consistency in terminology, and update processes.
-
+Ensure all existing tests pass after refactoring. Verify UI interactions work correctly with updated contract names and ABIs. Manually review code for consistent thematic naming.

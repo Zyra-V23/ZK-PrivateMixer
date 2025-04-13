@@ -22,8 +22,10 @@
     "ethers": "^6.13.5",
     "figlet": "^1.7.0",
     "gradient-string": "^2.0.2",
+    "merkletreejs": "^0.5.1",
     "openai": "^4.86.1",
     "ora": "^7.0.1",
+    "poseidon-solidity": "^0.0.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "web3": "^4.16.0"
@@ -34,6 +36,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@zk-kit/incremental-merkle-tree": "^1.1.0",
     "circom": "^0.5.42",
     "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.7",

@@ -1,0 +1,89 @@
+ .cursor/rules/zk_workflow.mdc                   |    75 [32m+[m[31m-[m
+ .gitignore                                      |     4 [32m+[m
+ .windsurfrules                                  |   474 [31m-[m
+ build/zk/mixer.r1cs                             |   Bin [31m1918876[m -> [32m1945104[m bytes
+ build/zk/mixer.sym                              | 44808 [32m++++++++++++++++++++[m[31m--------------------[m
+ build/zk/mixer_js/mixer.wasm                    |   Bin [31m2302368[m -> [32m2305454[m bytes
+ circomlib                                       |     1 [31m-[m
+ circuits/aliascheck.circom                      |    33 [31m-[m
+ circuits/babyjub.circom                         |   107 [31m-[m
+ circuits/basic.circom                           |     7 [31m-[m
+ circuits/binsub.circom                          |    74 [31m-[m
+ circuits/binsum.circom                          |   101 [31m-[m
+ circuits/bitify.circom                          |   106 [31m-[m
+ circuits/build/example.r1cs                     |   Bin [31m264[m -> [32m0[m bytes
+ circuits/build/example.sym                      |     3 [31m-[m
+ circuits/build/example.wtns                     |   Bin [31m204[m -> [32m0[m bytes
+ circuits/build/example_0000.zkey                |   Bin [31m2580[m -> [32m0[m bytes
+ circuits/build/example_final.zkey               |   Bin [31m3004[m -> [32m0[m bytes
+ circuits/build/example_js/example.wasm          |   Bin [31m34317[m -> [32m0[m bytes
+ circuits/build/example_js/generate_witness.js   |    21 [31m-[m
+ circuits/build/example_js/witness_calculator.js |   381 [31m-[m
+ circuits/build/example_proof.json               |    28 [31m-[m
+ circuits/build/example_public.json              |     3 [31m-[m
+ circuits/build/example_verification_key.json    |    94 [31m-[m
+ circuits/comparators.circom                     |   141 [31m-[m
+ circuits/compconstant.circom                    |    74 [31m-[m
+ circuits/eddsa.circom                           |   139 [31m-[m
+ circuits/eddsamimc.circom                       |   124 [31m-[m
+ circuits/eddsamimcsponge.circom                 |   124 [31m-[m
+ circuits/eddsaposeidon.circom                   |   123 [31m-[m
+ circuits/escalarmul.circom                      |   166 [31m-[m
+ circuits/escalarmulany.circom                   |   197 [31m-[m
+ circuits/escalarmulfix.circom                   |   299 [31m-[m
+ circuits/escalarmulw4table.circom               |    52 [31m-[m
+ circuits/gates.circom                           |    96 [31m-[m
+ circuits/mimc.circom                            |   156 [31m-[m
+ circuits/mimcsponge.circom                      |   293 [31m-[m
+ circuits/minimal.circom                         |     8 [31m-[m
+ circuits/mixer.circom                           |     2 [32m+[m[31m-[m
+ circuits/mixer_optimized.circom                 |   106 [31m-[m
+ circuits/montgomery.circom                      |   142 [31m-[m
+ circuits/multiplexer.circom                     |   115 [31m-[m
+ circuits/mux1.circom                            |    48 [31m-[m
+ circuits/mux2.circom                            |    63 [31m-[m
+ circuits/mux3.circom                            |    75 [31m-[m
+ circuits/mux4.circom                            |   119 [31m-[m
+ circuits/pedersen.circom                        |   257 [31m-[m
+ circuits/pointbits.circom                       |   164 [31m-[m
+ circuits/poseidon.circom                        |   209 [31m-[m
+ circuits/poseidon_constants.circom              | 24959 [31m----------------------[m
+ circuits/sign.circom                            |    36 [31m-[m
+ circuits/simple.circom                          |    14 [32m+[m[31m-[m
+ circuits/smthash_mimc.circom                    |    58 [31m-[m
+ circuits/smthash_poseidon.circom                |    57 [31m-[m
+ circuits/smtlevins.circom                       |   105 [31m-[m
+ circuits/smtprocessor.circom                    |   261 [31m-[m
+ circuits/smtprocessorlevel.circom               |    95 [31m-[m
+ circuits/smtprocessorsm.circom                  |   165 [31m-[m
+ circuits/smtverifier.circom                     |   138 [31m-[m
+ circuits/smtverifierlevel.circom                |    74 [31m-[m
+ circuits/smtverifiersm.circom                   |   106 [31m-[m
+ circuits/switcher.circom                        |    44 [31m-[m
+ circuits/test.circom                            |    11 [31m-[m
+ circuits/test_circuit.circom                    |    12 [31m-[m
+ circuits/utils.circom                           |     1 [31m-[m
+ contracts/ExampleVerifier.sol                   |   168 [31m-[m
+ contracts/MockVerifier.sol                      |    29 [32m+[m[31m-[m
+ contracts/RealVerifier.sol                      |    90 [32m+[m[31m-[m
+ docs/Architecture_Overview.md                   |    76 [31m-[m
+ docs/analysis.md                                |   190 [31m-[m
+ docs/circuit_security_guidelines.md             |   135 [31m-[m
+ docs/implementation diary.md                    |   178 [32m+[m[31m-[m
+ example.sym                                     |     0
+ inputs/example_input.json                       |     5 [32m+[m[31m-[m
+ mixer.sym                                       |     0
+ mixer_optimized.sym                             |     0
+ package-lock.json                               |     4 [32m+[m[31m-[m
+ scripts/generate_proof.sh                       |   128 [32m+[m[31m-[m
+ test.sym                                        |     0
+ test/ZKMixer.test.cjs                           |    24 [32m+[m[31m-[m
+ zk-compile.bat                                  |     3 [31m-[m
+ zk-prove.bat                                    |     3 [31m-[m
+ zk-tools/README.md                              |     1 [31m-[m
+ zk-tools/docker/Dockerfile                      |    13 [31m-[m
+ zk-tools/docs/INSTRUCCIONES.md                  |    96 [31m-[m
+ zk-tools/docs/circuit_improvements.md           |   139 [31m-[m
+ zk-tools/scripts/compile_circuit.bat            |    62 [31m-[m
+ zk-tools/scripts/generate_proof.bat             |   101 [31m-[m
+ 88 files changed, 22962 insertions(+), 54231 deletions(-)
