@@ -3,6 +3,8 @@
 
 A privacy-focused Ethereum/SOL mixer using zero-knowledge proofs (ZK-SNARKs Groth16) for confidential transactions. Non Kyc, Non Signup.
 
+https://pump.fun/coin/HCBCps9SVj5iGc56qNws7gqDZJPMLyH6BbcPK4irpump
+
 ## Overview
 
 ZK-PrivateMixer is a decentralized application that allows users to make private transactions on Ethereum by breaking the on-chain link between deposit and withdrawal addresses. It uses zero-knowledge proofs to enable withdrawals without revealing which deposit they're linked to.
