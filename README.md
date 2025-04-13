@@ -1,7 +1,7 @@
 <!-- GitAds-Verify: LDJ4DEKYGCAIVRBREAXJBJB2QJPE29R3 -->
 # U-ZK Void Mixer
 
-A privacy-focused Ethereum mixer using zero-knowledge proofs (ZK-SNARKs Groth16) for confidential transactions.
+A privacy-focused Ethereum/SOL mixer using zero-knowledge proofs (ZK-SNARKs Groth16) for confidential transactions. Non Kyc, Non Signup.
 
 ## Overview
 
