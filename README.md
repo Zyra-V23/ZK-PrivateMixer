@@ -171,3 +171,4 @@ MIT License with Commons Clause (See LICENSE file).
 - `poseidon-solidity` (Code copied locally)
 - `thor314/circuit-examples` (Source for `VerifyMerklePath` template)
 - Tornado Cash, Semaphore, Sismo for concepts and inspiration.
+<!-- GitAds-Verify: LDJ4DEKYGCAIVRBREAXJBJB2QJPE29R3 -->
