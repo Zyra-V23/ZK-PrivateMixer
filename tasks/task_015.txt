@@ -1,0 +1,43 @@
+# Task ID: 15
+# Title: Fix dummy logic of ZERO_VALUE in SMT root (Poseidon)
+# Status: inprogress
+# Dependencies: None
+# Priority: high
+# Description: Align the ZERO_VALUE (Poseidon hash of (0,0)) across the stack (Solidity, Circom, JS) for Merkle/Sparse Merkle Tree, removing dummy logic and ensuring full compatibility.
+# Details:
+Currently, the SMTVerifierLib.sol library uses bytes32(0) as ZERO_VALUE, while the main contract and the circuit use the real Poseidon hash. This can cause inconsistencies and proof verification failures. It is necessary to research best practices, align the value in all languages, and update the .mdc rules to reflect the correct standard.
+
+# Test Strategy:
+1. Add unit and integration tests that verify the root calculated in Solidity, Circom, and JS for empty and non-empty trees. 2. Test ZK proof generation and verification with the new aligned value. 3. Validate that integration tests pass and that the root is consistent across the stack.
+
+# Subtasks:
+## 1. Research best practices and references on ZERO_VALUE Poseidon in Merkle Trees [done]
+### Dependencies: None
+### Description: Search for documentation, examples, and audits of ZK mixers (Tornado Cash, Semaphore, etc.) and academic references on the definition and use of ZERO_VALUE in Merkle/Sparse Merkle Trees with Poseidon.
+### Details:
+
+
+## 2. Align ZERO_VALUE in Solidity, Circom, and JS [done]
+### Dependencies: None
+### Description: Update SMTVerifierLib.sol, Circom circuits, and JS utilities to use the same ZERO_VALUE (Poseidon hash of (0,0)), removing any inconsistent dummy/hardcoded values.
+### Details:
+
+
+## 3. Update .mdc rules for Merkle/Sparse Merkle and Poseidon hash [pending]
+### Dependencies: None
+### Description: Modify circom_rules.mdc, solidity_rules.mdc, and web3_integration_rules.mdc to reflect the importance of aligning ZERO_VALUE and document the correct standard.
+### Details:
+
+
+## 4. Add and run integration tests to verify root and ZK proofs [pending]
+### Dependencies: None
+### Description: Create or update tests that verify the consistency of the root and the validity of ZK proofs across the stack after the fix.
+### Details:
+
+
+## 5. Create an isolated Merkle Tree rule (.mdc): standard, ZERO_VALUE, test vectors, and cross-stack consistency [done]
+### Dependencies: None
+### Description: Draft a new rule file (e.g., merkle_tree_rules.mdc) that documents the Merkle Tree standard, how ZERO_VALUE is calculated (Poseidon(0,0)), and the required test vectors and consistency checks for Solidity, Circom, and JS.
+### Details:
+
+

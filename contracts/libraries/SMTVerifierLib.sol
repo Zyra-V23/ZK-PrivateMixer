@@ -10,10 +10,9 @@ import "./PoseidonT3.sol";
  */
 library SMTVerifierLib {
 
-    // Placeholder for the zero value hash used in the tree construction.
-    // Needs to be consistent with the circuit and off-chain SMT generation.
-    // Using bytes32(0) for now, assuming PoseidonT3 hash of (0,0) is not 0.
-    bytes32 constant ZERO_VALUE = bytes32(0); 
+    // Using the Poseidon(0,0) hash as ZERO_VALUE, matching ZKMixer.sol and the project-wide Merkle Tree rule.
+    // See: .cursor/rules/merkle_tree_rules.mdc
+    bytes32 constant ZERO_VALUE = 0x2098f5fb9e239eab3ceac3f27b81e481dc3124d55ffed523a839ee8446b64864;
 
     /**
      * @notice Verifies a Sparse Merkle Tree proof.

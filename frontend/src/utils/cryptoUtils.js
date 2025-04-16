@@ -53,4 +53,9 @@ export async function poseidonHash(inputs) {
 }
 
 // Optional: Export the getter if direct access is needed elsewhere
-// export { getPoseidon }; 
+// export { getPoseidon };
+
+// IMPORTANT: Merkle Tree ZERO_VALUE (padding for empty nodes) must be Poseidon(0,0):
+// 0x2098f5fb9e239eab3ceac3f27b81e481dc3124d55ffed523a839ee8446b64864
+// See: .cursor/rules/merkle_tree_rules.mdc for the project-wide standard and test vectors.
+// All Merkle-related code and tests must use this value for empty nodes. 

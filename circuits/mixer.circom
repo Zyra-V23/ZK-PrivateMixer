@@ -83,4 +83,8 @@ template Mixer(levels) {
 
 // Instantiate the template for our specific tree height
 // The MERKLE_TREE_HEIGHT from Solidity was 20
-component main {public [root, nullifierHash, recipient, relayer, fee, chainId, refund]} = Mixer(20); 
+component main {public [root, nullifierHash, recipient, relayer, fee, chainId, refund]} = Mixer(20);
+
+// IMPORTANT: All Merkle Tree pathElements (empty nodes) must use the ZERO_VALUE defined as Poseidon(0,0):
+// 0x2098f5fb9e239eab3ceac3f27b81e481dc3124d55ffed523a839ee8446b64864
+// See: .cursor/rules/merkle_tree_rules.mdc for the project-wide standard and test vectors. 

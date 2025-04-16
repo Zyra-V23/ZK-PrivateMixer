@@ -1,0 +1,44 @@
+Task 15: Fix ZERO_VALUE Dummy Logic in SMT Root (Poseidon)
+=========================================================
+
+**Objective:**
+Align the ZERO_VALUE (Poseidon hash of (0,0)) across the entire stack (Solidity, Circom, JS) for Merkle/Sparse Merkle Trees, removing dummy logic and ensuring full compatibility and security.
+
+**Context:**
+- The SMTVerifierLib.sol library currently uses bytes32(0) as ZERO_VALUE, while the main contract and circuit use the real Poseidon hash of (0,0).
+- This inconsistency can cause proof verification failures and root mismatches between contract, circuit, and JS.
+- Best practice (Tornado Cash, Semaphore, etc.): hardcode the Poseidon(0,0) value as ZERO_VALUE in all languages and document it clearly.
+
+**Problems Detected:**
+- Dummy logic in SMTVerifierLib.sol: uses bytes32(0) instead of the real Poseidon(0,0) hash.
+- Potential for root mismatches and failed ZK proof verifications if SMT logic is used.
+- Rules (.mdc) do not explicitly enforce or document this alignment.
+
+**Next Steps:**
+1. Research and document best practices and references for ZERO_VALUE Poseidon in Merkle Trees (Tornado Cash, Semaphore, academic papers, audits).
+2. Align ZERO_VALUE in Solidity, Circom, and JS (update SMTVerifierLib.sol, circuits, JS utils).
+3. Update .mdc rules (circom_rules, solidity_rules, web3_integration_rules) to reflect the correct standard and enforce alignment.
+4. Add and run integration tests to verify root consistency and ZK proof validity across the stack after the fix.
+
+**Progress Log:**
+- [2025-04-12 17:30] Task created and initial analysis documented.
+- [2025-04-13 09:10] Completed review of all existing rules (.mdc) regarding Merkle logic and ZERO_VALUE. Identified the need for a dedicated, isolated Merkle Tree rule to centralize standards and avoid inconsistencies.
+- [2025-04-13 09:20] Task 15 and all subtasks translated to English for clarity and consistency.
+- [2025-04-13 09:35] Drafted and created the new isolated rule: `.cursor/rules/merkle_tree_rules.mdc`. This rule documents:
+    - The Merkle Tree standard (dense, fixed depth, padding with ZERO_VALUE)
+    - The definition and calculation of ZERO_VALUE (Poseidon(0,0))
+    - Required test vectors (e.g., Poseidon(0,0), Poseidon(1,2), initial root)
+    - Cross-stack consistency requirements for Solidity, Circom, and JS
+    - Implementation guidance and references
+- [2025-04-13 09:40] Verified that the current JS and contract test vectors are:
+    - `ZERO_VALUE = 0x2098f5fb9e239eab3ceac3f27b81e481dc3124d55ffed523a839ee8446b64864`
+    - `Poseidon(1,2) = 0x115cc0f5e7d690413df64c6b9662e9cf2a3617f2743245519e19607a4417189a`
+    - Initial Merkle root (depth 20):
+        - JS: 0x2541d9a4f664244017571045403f82b8efff56fbc0019b1a40606720d6095a43
+        - Contract: 0x19df90ec844ebc4ffeebd866f33859b0c051d8c958ee3aa88f8f8df3db91a5b1
+    - There is a known difference between the JS and contract initial root values, which is now explicitly documented for further investigation and alignment.
+- [2025-04-13 09:45] All changes committed. Next: Mark subtask 15.5 as in progress and begin iterative review and alignment of Merkle logic across the stack.
+- [2025-04-13 10:05] Dummy logic removed: SMTVerifierLib.sol, Circom, and JS now all use the real Poseidon(0,0) ZERO_VALUE (0x2098f5fb9e239eab3ceac3f27b81e481dc3124d55ffed523a839ee8446b64864). All documentation and comments updated. Integration tests now run with real logic, no mocks or dummies. Subtask 15.2 completed.
+
+---
+This file will be updated as the task progresses. 

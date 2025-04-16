@@ -7,6 +7,10 @@ pragma circom 2.0.0;
 include "poseidon.circom";
 include "comparators.circom"; 
 
+// IMPORTANT: All empty Merkle Tree nodes (pathElements) must use the ZERO_VALUE defined as Poseidon(0,0):
+// 0x2098f5fb9e239eab3ceac3f27b81e481dc3124d55ffed523a839ee8446b64864
+// See: .cursor/rules/merkle_tree_rules.mdc for the project-wide standard and test vectors.
+
 // if s == 0 returns [in[0], in[1]]
 // if s == 1 returns [in[1], in[0]]
 template PositionSwitcher() {
