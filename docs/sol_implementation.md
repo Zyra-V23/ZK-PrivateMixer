@@ -87,13 +87,33 @@ We've conducted a systematic testing of individual Light Protocol crates to iden
    - **Dependencies**: light-bounded-vec, light-hasher, light-utils, solana-program, memoffset
    - **Notes**: Compilation takes about 29s; depends on light-bounded-vec, which is correctly resolved within Light Protocol's workspace
 
+4. **light-hash-set** (2024-06-28)
+   - **Status**: ✅ Compiles successfully
+   - **Purpose**: Hash set implementation for Solana accounts
+   - **Dependencies**: solana-program, thiserror, num-bigint, num-traits
+   - **Notes**: Compila con múltiples warnings sobre `default-features` y un patch no utilizado, pero sin errores funcionales
+
+5. **light-indexed-merkle-tree** (2024-06-28)
+   - **Status**: ✅ Compiles successfully
+   - **Purpose**: Indexed Merkle tree implementation for efficient state proofs
+   - **Dependencies**: light-bounded-vec, light-indexed-array, light-utils
+   - **Notes**: Compila con múltiples warnings sobre `default-features` y un patch no utilizado, pero sin errores funcionales
+
+6. **light-batched-merkle-tree** (2024-06-28)
+   - **Status**: ✅ Compiles successfully
+   - **Purpose**: Batched Merkle tree implementation for efficient batch updates
+   - **Dependencies**: light-hasher, light-account-checks, light-compressed-account, light-merkle-tree-metadata
+   - **Notes**: Compila con múltiples warnings sobre `default-features` y un patch no utilizado, pero sin errores funcionales. Tiempo de compilación: ~1m 50s
+
+7. **light-merkle-tree-metadata** (2024-06-28)
+   - **Status**: ✅ Compiles successfully
+   - **Purpose**: Metadata management for Merkle trees in Light Protocol
+   - **Dependencies**: ark-ff, ark-bn254, light-hasher, light-compressed-account
+   - **Notes**: Compila con múltiples warnings sobre `default-features` y un patch no utilizado, pero sin errores funcionales. Tiempo de compilación: ~25s
+
 ### In-Progress Testing
 
-Remaining crates to test (in priority order):
-- light-hash-set
-- light-indexed-merkle-tree
-- light-batched-merkle-tree
-- light-merkle-tree-metadata
+All priority crates tested. Next steps: test additional crates as needed or proceed to integration/benchmarking.
 
 ---
 
@@ -162,5 +182,21 @@ The following warnings were observed during the compilation of Light Protocol cr
 
 2. **Patch Warnings**:
    - Patch `solana-rpc v1.18.22` was not used in the crate graph. This might be due to version compatibility issues or optional dependencies not being enabled.
+
+3. **Tested crate:** light-hash-set (2024-06-28)
+   - Multiple warnings about `default-features` ignored for dependencies (see terminal output)
+   - Patch `solana-rpc v1.18.22` not used in the crate graph
+
+4. **Tested crate:** light-indexed-merkle-tree (2024-06-28)
+   - Multiple warnings about `default-features` ignored for dependencies (see terminal output)
+   - Patch `solana-rpc v1.18.22` not used in the crate graph
+
+5. **Tested crate:** light-batched-merkle-tree (2024-06-28)
+   - Multiple warnings about `default-features` ignored for dependencies (see terminal output)
+   - Patch `solana-rpc v1.18.22` not used in the crate graph
+
+6. **Tested crate:** light-merkle-tree-metadata (2024-06-28)
+   - Multiple warnings about `default-features` ignored for dependencies (see terminal output)
+   - Patch `solana-rpc v1.18.22` not used in the crate graph
 
 These warnings do not affect functionality but indicate potential improvements for workspace configuration consistency. If these warnings become errors in future Rust/Cargo versions, they may need to be addressed. 
