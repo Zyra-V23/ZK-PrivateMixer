@@ -200,3 +200,79 @@ The following warnings were observed during the compilation of Light Protocol cr
    - Patch `solana-rpc v1.18.22` not used in the crate graph
 
 These warnings do not affect functionality but indicate potential improvements for workspace configuration consistency. If these warnings become errors in future Rust/Cargo versions, they may need to be addressed. 
+
+---
+
+## Hallazgos y Adaptación de la Lógica Merkle (Light Protocol vs Voragine)
+
+### Resumen de la lógica Merkle en Light Protocol
+- Árboles Merkle concurrentes y zero-copy, optimizados para Solana (Rust/Anchor).
+- Uso de Poseidon como función hash, con parámetros alineados a los estándares ZK (Poseidon(0,0) como ZERO_VALUE).
+- Gestión eficiente de raíces: múltiples raíces válidas, changelog y verificación eficiente.
+- Primitivas auditadas y test vectors documentados.
+
+### Comparativa con nuestra lógica actual (EVM/Circom/JS)
+- Nuestra lógica en Solidity y Circom usa el mismo ZERO_VALUE (Poseidon(0,0)), y la raíz inicial está alineada (ver [merkle_tree_rules.mdc]).
+- El cálculo de la raíz y la verificación de pruebas en Solidity, Circom y JS están alineados, pero no implementan concurrencia ni zero-copy.
+- La gestión de raíces en nuestro stack es más simple (un solo root conocido a la vez), sin changelog ni múltiples raíces válidas.
+
+### Propuestas de adaptación
+- **Importar la lógica de Merkle concurrente de Light Protocol** como referencia para futuras implementaciones en Solana y, si es posible, portar conceptos a JS/Solidity (por ejemplo, batching de actualizaciones, changelog de raíces).
+- **Crear archivos puente** en `/external/light-protocol/bridge/` para exponer la lógica Merkle y Poseidon de Light Protocol a nuestro stack Voragine:
+  - `merkle_bridge.rs` (Rust): expone funciones de Merkle y hashing para ser llamadas desde otros módulos o FFI.
+  - `merkle_bridge.js` (JS): wrapper para consumir la lógica Merkle de Light Protocol desde scripts/tests JS.
+  - Documentar en el README la existencia y uso de estos archivos puente.
+- **Alinear y documentar los test vectors** (ZERO_VALUE, raíces iniciales, pruebas de inclusión) entre ambos stacks.
+- **Actualizar la documentación** para reflejar la integración y los puntos de extensión/adaptación.
+
+### Siguientes pasos
+- Implementar los archivos puente y wrappers.
+- Probar la consistencia de raíces y pruebas entre ambos stacks.
+- Documentar cualquier diferencia o incompatibilidad encontrada.
+
+---
+
+## Nueva Meta: Máxima Robustez y Pruebas de Inclusión Cross-Stack
+
+### Objetivo
+Garantizar la máxima robustez y compatibilidad entre stacks generando pruebas de inclusión Merkle en Light Protocol (Rust) y verificándolas en Circom y Solidity.
+
+### Plan de acción
+1. **Generar pruebas de inclusión en Rust (Light Protocol):**
+   - Usar los crates y bridges para crear árboles Merkle, insertar hojas y generar pruebas de inclusión (leaf, root, pathElements, pathIndices).
+   - Exportar los inputs de la prueba a un archivo JSON (por ejemplo, `test_vectors_light.json`).
+2. **Verificar la prueba en Circom:**
+   - Usar el circuito `verify_merkle_path.circom` con los mismos inputs exportados desde Rust.
+   - Confirmar que la prueba es válida y el root coincide.
+3. **Verificar la prueba en Solidity:**
+   - Usar la función `verifyProof` de `SMTVerifierLib.sol` con los mismos datos.
+   - Confirmar que la verificación es exitosa.
+4. **Documentar resultados y diferencias:**
+   - Si todo coincide, dejar constancia en la documentación y reglas `.mdc`.
+   - Si hay diferencias, analizarlas y documentar la causa (encoding, padding, etc.).
+
+### Siguientes pasos
+- Implementar el test en Rust y exportar los vectores.
+- Preparar scripts/circuitos para la verificación en Circom y Solidity.
+- Documentar el flujo y los resultados en este archivo y en las reglas correspondientes.
+
+---
+
+## Light Protocol Merkle Logic Integration – Progress & Status
+
+### Summary of Progress
+- Light Protocol's Merkle tree logic is now integrated into the workspace.
+- All required crates (`concurrent-merkle-tree`, `light-hasher`, etc.) are included and build without errors.
+- A Rust example (`merkle_vectors`) was created that:
+  - Instantiates a Merkle tree.
+  - Inserts a leaf.
+  - Reconstructs the Merkle inclusion proof (for a single-leaf tree, all siblings are ZERO_VALUE).
+  - Exports the proof as a JSON file (`test_vectors_light.json`) in a format compatible with Circom and Solidity.
+- The bridges for Merkle logic are in place and tested: the Rust code compiles and runs, producing the expected output.
+- The `.mdc` rules for Merkle trees have been updated to reflect cross-stack standards, serialization, and test vector requirements.
+
+### What's left for Merkle logic
+- (Optional, for robustness) Export and test multi-leaf Merkle proofs (with real siblings, not just ZERO_VALUE).
+- Use the exported JSON as input for Circom (`verify_merkle_path.circom`) and Solidity (`SMTVerifierLib.sol`) to confirm cross-stack proof verification.
+- Document any encoding, padding, or root mismatches found in these cross-stack tests.
+- Finalize documentation and mark all related tasks as done once cross-verification is confirmed. 
