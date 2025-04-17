@@ -203,58 +203,58 @@ These warnings do not affect functionality but indicate potential improvements f
 
 ---
 
-## Hallazgos y Adaptación de la Lógica Merkle (Light Protocol vs Voragine)
+## Findings and Adaptation of Merkle Logic (Light Protocol vs Voragine)
 
-### Resumen de la lógica Merkle en Light Protocol
-- Árboles Merkle concurrentes y zero-copy, optimizados para Solana (Rust/Anchor).
-- Uso de Poseidon como función hash, con parámetros alineados a los estándares ZK (Poseidon(0,0) como ZERO_VALUE).
-- Gestión eficiente de raíces: múltiples raíces válidas, changelog y verificación eficiente.
-- Primitivas auditadas y test vectors documentados.
+### Summary of Merkle Logic in Light Protocol
+- Concurrent and zero-copy Merkle trees, optimized for Solana (Rust/Anchor).
+- Use of Poseidon as hash function, with parameters aligned to ZK standards (Poseidon(0,0) as ZERO_VALUE).
+- Efficient root management: multiple valid roots, changelog and efficient verification.
+- Audited primitives and documented test vectors.
 
-### Comparativa con nuestra lógica actual (EVM/Circom/JS)
-- Nuestra lógica en Solidity y Circom usa el mismo ZERO_VALUE (Poseidon(0,0)), y la raíz inicial está alineada (ver [merkle_tree_rules.mdc]).
-- El cálculo de la raíz y la verificación de pruebas en Solidity, Circom y JS están alineados, pero no implementan concurrencia ni zero-copy.
-- La gestión de raíces en nuestro stack es más simple (un solo root conocido a la vez), sin changelog ni múltiples raíces válidas.
+### Comparison with our current logic (EVM/Circom/JS)
+- Our logic in Solidity and Circom uses the same ZERO_VALUE (Poseidon(0,0)), and the initial root is aligned (see [merkle_tree_rules.mdc]).
+- Root calculation and proof verification in Solidity, Circom and JS are aligned, but don't implement concurrency or zero-copy.
+- Root management in our stack is simpler (only one known root at a time), without changelog or multiple valid roots.
 
-### Propuestas de adaptación
-- **Importar la lógica de Merkle concurrente de Light Protocol** como referencia para futuras implementaciones en Solana y, si es posible, portar conceptos a JS/Solidity (por ejemplo, batching de actualizaciones, changelog de raíces).
-- **Crear archivos puente** en `/external/light-protocol/bridge/` para exponer la lógica Merkle y Poseidon de Light Protocol a nuestro stack Voragine:
-  - `merkle_bridge.rs` (Rust): expone funciones de Merkle y hashing para ser llamadas desde otros módulos o FFI.
-  - `merkle_bridge.js` (JS): wrapper para consumir la lógica Merkle de Light Protocol desde scripts/tests JS.
-  - Documentar en el README la existencia y uso de estos archivos puente.
-- **Alinear y documentar los test vectors** (ZERO_VALUE, raíces iniciales, pruebas de inclusión) entre ambos stacks.
-- **Actualizar la documentación** para reflejar la integración y los puntos de extensión/adaptación.
+### Adaptation proposals
+- **Import Light Protocol's concurrent Merkle logic** as reference for future Solana implementations and, if possible, port concepts to JS/Solidity (e.g., update batching, root changelog).
+- **Create bridge files** in `/external/light-protocol/bridge/` to expose Light Protocol's Merkle and Poseidon logic to our Voragine stack:
+  - `merkle_bridge.rs` (Rust): exposes Merkle and hashing functions to be called from other modules or FFI.
+  - `merkle_bridge.js` (JS): wrapper to consume Light Protocol's Merkle logic from JS scripts/tests.
+  - Document in the README the existence and usage of these bridge files.
+- **Align and document test vectors** (ZERO_VALUE, initial roots, inclusion proofs) between both stacks.
+- **Update documentation** to reflect integration and extension/adaptation points.
 
-### Siguientes pasos
-- Implementar los archivos puente y wrappers.
-- Probar la consistencia de raíces y pruebas entre ambos stacks.
-- Documentar cualquier diferencia o incompatibilidad encontrada.
+### Next steps
+- Implement bridge files and wrappers.
+- Test root and proof consistency between both stacks.
+- Document any differences or incompatibilities found.
 
 ---
 
-## Nueva Meta: Máxima Robustez y Pruebas de Inclusión Cross-Stack
+## New Goal: Maximum Robustness and Cross-Stack Inclusion Proofs
 
-### Objetivo
-Garantizar la máxima robustez y compatibilidad entre stacks generando pruebas de inclusión Merkle en Light Protocol (Rust) y verificándolas en Circom y Solidity.
+### Objective
+Ensure maximum robustness and compatibility between stacks by generating Merkle inclusion proofs in Light Protocol (Rust) and verifying them in Circom and Solidity.
 
-### Plan de acción
-1. **Generar pruebas de inclusión en Rust (Light Protocol):**
-   - Usar los crates y bridges para crear árboles Merkle, insertar hojas y generar pruebas de inclusión (leaf, root, pathElements, pathIndices).
-   - Exportar los inputs de la prueba a un archivo JSON (por ejemplo, `test_vectors_light.json`).
-2. **Verificar la prueba en Circom:**
-   - Usar el circuito `verify_merkle_path.circom` con los mismos inputs exportados desde Rust.
-   - Confirmar que la prueba es válida y el root coincide.
-3. **Verificar la prueba en Solidity:**
-   - Usar la función `verifyProof` de `SMTVerifierLib.sol` con los mismos datos.
-   - Confirmar que la verificación es exitosa.
-4. **Documentar resultados y diferencias:**
-   - Si todo coincide, dejar constancia en la documentación y reglas `.mdc`.
-   - Si hay diferencias, analizarlas y documentar la causa (encoding, padding, etc.).
+### Action plan
+1. **Generate inclusion proofs in Rust (Light Protocol):**
+   - Use crates and bridges to create Merkle trees, insert leaves and generate inclusion proofs (leaf, root, pathElements, pathIndices).
+   - Export proof inputs to a JSON file (e.g., `test_vectors_light.json`).
+2. **Verify proof in Circom:**
+   - Use `verify_merkle_path.circom` circuit with the same inputs exported from Rust.
+   - Confirm that the proof is valid and root matches.
+3. **Verify proof in Solidity:**
+   - Use `verifyProof` function from `SMTVerifierLib.sol` with the same data.
+   - Confirm that verification is successful.
+4. **Document results and differences:**
+   - If everything matches, record in documentation and `.mdc` rules.
+   - If there are differences, analyze and document the cause (encoding, padding, etc.).
 
-### Siguientes pasos
-- Implementar el test en Rust y exportar los vectores.
-- Preparar scripts/circuitos para la verificación en Circom y Solidity.
-- Documentar el flujo y los resultados en este archivo y en las reglas correspondientes.
+### Next steps
+- Implement Rust test and export vectors.
+- Prepare scripts/circuits for Circom and Solidity verification.
+- Document flow and results in this file and corresponding rules.
 
 ---
 
@@ -275,4 +275,34 @@ Garantizar la máxima robustez y compatibilidad entre stacks generando pruebas d
 - (Optional, for robustness) Export and test multi-leaf Merkle proofs (with real siblings, not just ZERO_VALUE).
 - Use the exported JSON as input for Circom (`verify_merkle_path.circom`) and Solidity (`SMTVerifierLib.sol`) to confirm cross-stack proof verification.
 - Document any encoding, padding, or root mismatches found in these cross-stack tests.
-- Finalize documentation and mark all related tasks as done once cross-verification is confirmed. 
+- Finalize documentation and mark all related tasks as done once cross-verification is confirmed.
+
+---
+
+## Next Steps for Task 16: Light Protocol Integration (Merkle Logic)
+
+To complete Task 16 and its subtasks, the following actions remain:
+
+1. **(Optional, for robustness) Export and test multi-leaf Merkle proofs**
+   - Insert multiple leaves into the Merkle tree in Rust.
+   - Export inclusion proofs for leaves that have real siblings (not just ZERO_VALUE).
+   - Ensure the exported JSON format matches the single-leaf case.
+
+2. **Cross-stack verification in Circom**
+   - Use the exported JSON as input for the `verify_merkle_path.circom` circuit.
+   - Confirm that the proof is valid and the root matches.
+   - Document any issues with encoding, padding, or root calculation.
+
+3. **Cross-stack verification in Solidity**
+   - Use the same JSON vectors as input for a Solidity test using `SMTVerifierLib.sol`.
+   - Confirm that the proof is accepted and the root matches.
+   - Document any issues with encoding, padding, or root calculation.
+
+4. **Documentation and finalization**
+   - Record all findings, mismatches, and resolutions in this file and the relevant `.mdc` rules.
+   - Once cross-verification is confirmed, mark all related subtasks (16.7–16.12) as done in the task tracker.
+   - Summarize the completed workflow and any lessons learned for future cross-stack ZK integrations.
+
+**With these steps, the Merkle logic integration for Light Protocol will be fully robust, cross-verified, and ready for further ZK workflow development.**
+
+--- 
