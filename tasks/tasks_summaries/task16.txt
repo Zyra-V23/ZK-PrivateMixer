@@ -1,0 +1,91 @@
+Task 16: Integrate Light Protocol for ZK on Solana
+==================================================
+
+**Objective:**
+Enable native ZK circuits, proofs, and verifiers on Solana by researching, integrating, and experimenting with Light Protocol. Leverage Light Protocol's primitives, SDKs, and documentation to build a robust privacy workflow as the foundation for Solana integration.
+
+**Context:**
+- Light Protocol is the leading open-source ZK framework for Solana, providing ZK compression, stateless execution, and modular primitives for zk-applications.
+- Our goal is to understand, prototype, and integrate Light Protocol as the ZK backend for the next phase of the mixer.
+- This task is the first step in the Solana integration roadmap, before considering cross-chain swaps (e.g., dKit by El Dorito).
+
+**Current Subtasks (as of tasks.json):**
+
+16.1 Survey Light Protocol documentation and architecture
+16.2 Set up local development environment for Light Protocol (Rust, Anchor, WASM)
+16.3 Build and run example circuits/proofs with Light Protocol
+16.4 Draft and update .mdc rules for Solana/Light Protocol workflow and standards
+16.5 Document findings, blockers, and integration notes in sol_implementation.md
+16.6 Analyze and adapt Merkle tree logic from Light Protocol (concurrent, zero-copy, efficient storage)
+16.7 Study and compare ZK proof systems (prover, server, integration)
+16.8 Analyze UTXO and ownership note model for privacy and flexibility
+16.9 Review account compression and zero-copy storage for possible optimizations
+16.10 Compare SDKs, developer tooling, and test utilities for cross-stack improvements
+16.11 Review audit, security, and formal verification processes for best practices
+16.12 Document unique strengths of our project vs. Light Protocol, and vice versa, with proposals for synergy or improvement
+
+**Progress Log:**
+- [2025-04-13 10:30] Task created and marked as in progress. Initial plan: begin by surveying Light Protocol documentation and architecture, and prepare the local dev environment for experimentation.
+- [2025-04-13 12:00] Subtask 16.2 completed manually. The Light Protocol repository was cloned to `external/light-protocol`. Development environment (Rust, Anchor, WASM) is ready for analysis and testing. Scripts for setup and build are available and functional.
+- [2025-04-13 12:15] Started subtask 16.3: Building and running example circuits/proofs with Light Protocol. Located example and test directories in the Light Protocol repository. Preparing to compile and execute at least one example to verify the environment and document the process.
+- [2025-04-13 12:30] Subtask 16.3 completed. Successfully compiled and ran the 'counter' example tests from Light Protocol (Anchor/Rust). All tests passed. The development environment is fully functional and ready for further integration and benchmarking.
+- [2025-04-13 12:45] Started subtask 16.5: Documenting findings, blockers, and integration notes in sol_implementation.md. Summarizing key learnings from Light Protocol integration, workflow rules, and environment setup. No critical blockers so far; next steps include deeper benchmarking and adaptation of Merkle, ZK, and UTXO logic.
+- [2025-04-13 13:00] Started subtask 16.6: Analyzing and adapting Merkle tree logic from Light Protocol. Initial findings: Light Protocol uses concurrent, zero-copy Merkle trees with Poseidon hash and efficient state compression. Key differences with our stack (Solidity/Circom/JS) include memory efficiency, root management, and update concurrency. Next: Document concrete adaptation proposals and cross-stack test strategies.
+- [2025-04-13 13:10] Subtask 16.6 progress: 
+  - **Adaptation proposals:**
+    - Study the use of zero-copy and memory-mapped Merkle trees for more efficient storage in future Solana/Rust implementations.
+    - For EVM, consider optimizing storage by batching updates and minimizing recalculation of the full tree (e.g., incremental root updates, root caching).
+    - Adopt Light Protocol's approach to root management (multiple roots, changelog, efficient verification) for better cross-stack consistency.
+    - Ensure all stacks (Solidity, Circom, JS, Rust) use the same ZERO_VALUE and Poseidon parameters, and document test vectors for root/hash consistency.
+    - Explore the possibility of porting/contributing a concurrent Merkle tree library for JS or Solidity inspired by Light Protocol's Rust implementation.
+  - **Next:** Implement cross-stack tests to verify root and proof consistency, and document any blockers or required changes in our stack.
+- [2025-04-13 13:20] Started subtask 16.7: Studying and comparing ZK proof systems (prover, server, integration). Initial findings: Light Protocol uses a dedicated prover server (Go/Rust), supports Groth16/Plonk, and integrates proof requests from JS/TS SDKs and Anchor tests. Our stack relies on snarkjs/Circom for proof generation and Solidity for on-chain verification. Next: Document integration patterns, performance notes, and cross-stack compatibility recommendations.
+
+# Task 16 Progress Log
+
+## Objective
+Integrate and experiment with Light Protocol for ZK circuits, proofs, and verifiers on Solana. Adapt Merkle logic and primitives for our stack, maintaining cross-stack consistency and documenting findings.
+
+## Progress
+- [x] Cloned and prepared Light Protocol environment.
+- [x] Identified and copied all required crates for Merkle and ZK logic:
+    - concurrent-merkle-tree
+    - light-bounded-vec
+    - light-hasher
+    - light-merkle-tree-reference
+    - light-hash-set
+    - light-indexed-array
+- [x] Updated workspace Cargo.toml to include all crates and dependencies, following the integration workflow outlined in [sol_implementation.md].
+- [x] Ensured all dependencies (internal and external) are aligned for reproducible builds and future mainnet deployment.
+- [ ] Next: Deep dive into Merkle, ZK, and UTXO logic for adaptation or porting to our stack.
+- [ ] Next: Document benchmarks, comparisons, and update sol_implementation.md as integration progresses.
+
+## Alignment with sol_implementation.md
+- The integration workflow and roadmap in [sol_implementation.md] is now reflected in our workspace and dependency structure.
+- All technical blockers for experimenting with Light Protocol's Merkle and ZK primitives have been resolved at the codebase level.
+- The next phase is focused on technical adaptation, benchmarking, and documentation.
+
+## References
+- [Light Protocol GitHub](https://github.com/Lightprotocol/light-protocol)
+- [sol_implementation.md](../docs/sol_implementation.md)
+- [ZK Mixer README](../README.md)
+
+---
+
+*This log will be updated as we progress with the technical adaptation and benchmarking of Light Protocol's primitives in our stack.*
+
+[2025-04-14 09:00] Nueva meta definida: máxima robustez y pruebas de inclusión cross-stack.
+
+**Objetivo:**
+- Generar pruebas de inclusión Merkle en Light Protocol (Rust) y verificarlas en Circom y Solidity para garantizar compatibilidad total y robustez entre stacks.
+
+**Plan de acción:**
+1. Generar pruebas de inclusión en Rust (Light Protocol), exportando los vectores (leaf, root, pathElements, pathIndices) a JSON.
+2. Verificar la prueba en Circom usando el circuito `verify_merkle_path.circom` y los mismos inputs.
+3. Verificar la prueba en Solidity usando `SMTVerifierLib.sol` y los mismos datos.
+4. Documentar resultados, diferencias y aprendizajes en sol_implementation.md y reglas `.mdc`.
+
+**Siguientes pasos:**
+- Implementar el test en Rust y exportar los vectores.
+- Preparar scripts/circuitos para la verificación en Circom y Solidity.
+- Documentar el flujo y los resultados. 

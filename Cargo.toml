@@ -1,0 +1,13 @@
+[workspace]
+# No miembros explícitos, usaremos el workspace del repo Light Protocol directamente
+resolver = "2"
+
+[workspace.dependencies]
+# Dependencias externas comunes
+borsh = "1.3"
+thiserror = "1.0"
+solana-program = "1.16"
+num-bigint = { version = "0.4", features = ["rand"] }
+num-traits = "0.2"
+rand = "0.8"
+tokio = { version = "1.37", features = ["rt", "macros"] }

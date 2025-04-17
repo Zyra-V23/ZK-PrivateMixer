@@ -1,0 +1,43 @@
+# Task ID: 16
+# Title: Integrate Light Protocol for ZK on Solana
+# Status: inprogress
+# Dependencies: None
+# Priority: high
+# Description: Research, integrate, and experiment with Light Protocol to enable ZK circuits, proofs, and verifiers natively on Solana. Focus on understanding and leveraging Light Protocol's primitives, SDKs, and documentation.
+# Details:
+Study Light Protocol's architecture and documentation. Set up the development environment. Prepare for prototyping and integration of ZK workflows on Solana.
+
+# Test Strategy:
+Verify that ZK circuits and proofs can be generated and verified using Light Protocol on Solana. Document all findings and blockers.
+
+# Subtasks:
+## 1. Survey Light Protocol documentation and architecture [inprogress]
+### Dependencies: None
+### Description: 
+### Details:
+
+
+## 2. Set up local development environment for Light Protocol (Rust, Anchor, WASM) [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
+
+## 3. Build and run example circuits/proofs with Light Protocol [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
+
+## 4. Draft and update .mdc rules for Solana/Light Protocol workflow and standards [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
+
+## 5. Document findings, blockers, and integration notes in sol_implementation.md [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
+

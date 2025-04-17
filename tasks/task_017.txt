@@ -1,0 +1,11 @@
+# Task ID: 17
+# Title: Prototype and test Light Protocol-based ZK workflow on Solana
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Develop a working prototype using Light Protocol to demonstrate ZK proof generation and verification on Solana. Test the privacy workflow end-to-end.
+# Details:
+Implement a minimal ZK workflow (e.g., deposit, proof, withdraw) using Light Protocol. Run integration tests and document results.
+
+# Test Strategy:
+End-to-end test: user can generate a ZK proof, submit it to Solana, and have it verified using Light Protocol. All steps are documented.

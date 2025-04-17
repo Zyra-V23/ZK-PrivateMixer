@@ -1,0 +1,11 @@
+# Task ID: 18
+# Title: Explore and integrate dKit by El Dorito for cross-chain swaps
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: After the ZK workflow is functional, research and prototype the integration of dKit by El Dorito to enable cross-chain swaps and liquidity (e.g., deposit in Solana, withdraw in EVM).
+# Details:
+Study dKit's SDK and documentation. Design integration points with the ZK mixer. Prototype cross-chain swap flows.
+
+# Test Strategy:
+Demonstrate a user flow where funds can be moved between Solana and EVM chains using dKit, layered on top of the ZK workflow.
