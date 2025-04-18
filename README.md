@@ -2,7 +2,7 @@
 # ZK-PrivateMixer (Uzumaki/U-ZK Void)
 
 ## Project Summary
-A cross-chain Zero-Knowledge Mixer enabling private deposits and withdrawals on Ethereum (EVM) and Solana, leveraging Circom circuits, Solidity, Light Protocol, and robust frontend tooling. The project ensures privacy, security, and interoperability between EVM and Solana using ZK proofs and Merkle tree consistency.
+A cross-chain Zero-Knowledge Mixer enabling private deposits and withdrawals on Ethereum (EVM) and Solana, leveraging Circom circuits, Solidity, custom EVM stack, Light Protocol for SOL stack, and robust frontend tooling. The project ensures privacy, security, and interoperability between EVM and Solana using ZK proofs and Merkle tree consistency.
 
 ---
 
