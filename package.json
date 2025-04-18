@@ -2,18 +2,23 @@
   "name": "zk-mixer",
   "version": "1.0.0",
   "description": "ZK Mixer for private transactions on Ethereum",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "test": "npx hardhat test",
     "compile": "npx hardhat compile",
     "compile:circuits": "bash scripts/compile_circuits.sh",
     "prove": "bash scripts/generate_proof.sh",
     "node": "npx hardhat node",
-    "deploy": "npx hardhat run scripts/deploy.js --network localhost"
+    "deploy": "npx hardhat run scripts/deploy.js --network localhost",
+    "viem-test": "node --loader ts-node/esm test/test-veim.ts",
+    "viem-test:build": "tsc && node dist/test-veim.js",
+    "viem-test:alt": "NODE_OPTIONS=\"--loader ts-node/esm\" node test-veim.ts",
+    "test:sol": "node --loader ts-node/esm test/test-solana.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@openzeppelin/contracts": "^5.2.0",
+    "@solana/web3.js": "^1.98.0",
     "boxen": "^7.1.1",
     "chalk": "^5.3.0",
     "cli-table3": "^0.6.3",
@@ -28,6 +33,9 @@
     "poseidon-solidity": "^0.0.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "superstruct": "^2.0.2",
+    "tweetnacl": "^1.0.3",
+    "viem": "^2.27.2",
     "web3": "^4.16.0"
   },
   "main": "index.js",
@@ -36,13 +44,16 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^22.14.1",
     "@zk-kit/incremental-merkle-tree": "^1.1.0",
     "circom": "^0.5.42",
     "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.7",
     "fixed-merkle-tree": "^0.7.3",
     "hardhat": "^2.22.19",
-    "snarkjs": "^0.7.5"
+    "snarkjs": "^0.7.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "keywords": [],
   "license": "ISC"

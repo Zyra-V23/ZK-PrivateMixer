@@ -47,7 +47,7 @@ ignition/deployments/chain-31337
 
 # Node.js dependencies
 node_modules/
-
+ignore/
 # Build artifacts
 /build/
 /artifacts/
