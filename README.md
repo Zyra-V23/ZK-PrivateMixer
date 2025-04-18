@@ -1,4 +1,3 @@
-<!-- GitAds-Verify: LDJ4DEKYGCAIVRBREAXJBJB2QJPE29R3 -->
 # ZK-PrivateMixer (Uzumaki/U-ZK Void)
 
 ## Project Summary
@@ -158,8 +157,8 @@ A cross-chain Zero-Knowledge Mixer enabling private deposits and withdrawals on 
 ---
 
 ## Roadmap & Next Steps
-- Finalize Light Protocol integration and cross-chain withdrawal logic.
-- Expand frontend for Solana flows and cross-chain UX.
+- Finalize bridge between EVM - SOL to validate both verifications.
+- Expand frontend for Solana/EVM flows and cross-chain UX. (UX will be always as simple as possible)
 - Add more integration tests and CI/CD automation.
 - Document advanced ZK and Merkle logic for contributors.
 
@@ -340,5 +339,26 @@ npm run test:sol
    - This will run Hardhat tests for the smart contracts and ZK logic.
 7. **Explore and modify the relayer scripts:**
    - Scripts for event indexing, nullifier tracking, and Merkle root fetching are available for further testing and development.
+
+---
+
+## Future Plan: Migration to TypeScript for Wormhole/Relayer
+
+Currently, the cross-chain relayer and Wormhole integration scripts are implemented in JavaScript (`.js`) for rapid prototyping and ease of testing. Once the MVP is validated and the cross-chain workflow is stable, we plan to migrate these scripts to TypeScript (`.ts`).
+
+**Motivation:**
+- Type safety for complex message structures (VAAs, Merkle roots, nullifiers)
+- Better maintainability and developer experience
+- Improved autocompletion and error detection
+- Alignment with best practices for production systems
+
+**Scope:**
+- All files in `/wormhole` (core, relayer, connectors, types)
+- Future relayer and bridge logic
+
+**Status:**
+- Planned (to be tracked as a dedicated task in `tasks.json`)
+
+See also: [tasks.json](tasks/tasks.json) for the migration task and progress.
 
 ---
