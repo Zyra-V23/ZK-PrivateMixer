@@ -3,39 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@metamask/detect-provider": "^2.0.0",
+    "@bedrock_org/passport": "^1.0.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
-    "assert": "^2.1.0",
-    "buffer": "^6.0.3",
-    "circomlibjs": "^0.1.7",
-    "ethers": "^5.7.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.22.3",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4",
-    "web3modal": "^1.9.12"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2020
-    },
-    "env": {
-      "browser": true,
-      "es2021": true
-    }
+    ]
   },
   "browserslist": {
     "production": [
@@ -48,8 +37,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@craco/craco": "^7.1.0"
   }
 }

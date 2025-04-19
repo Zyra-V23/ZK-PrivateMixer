@@ -1,40 +1,23 @@
-import React, { useState } from 'react';
-import { Web3Provider } from './contexts/Web3Context';
-import { MixerProvider } from './contexts/MixerContext';
-import Header from './components/Header';
-import MixerInterface from './components/MixerInterface';
-import Info from './components/Info';
-import Footer from './components/Footer';
-import './App.css';
+import React from "react";
+import { BedrockPassportProvider, LoginPanel } from "@bedrock_org/passport";
+import "@bedrock_org/passport/dist/style.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AuthCallback from "./pages/auth/callback";
 
 function App() {
-  const [activeSection, setActiveSection] = useState('mixer');
-
-  const renderActiveSection = () => {
-    switch (activeSection) {
-      case 'mixer':
-        return <MixerInterface />;
-      case 'info':
-        return <Info />;
-      default:
-        return <MixerInterface />;
-    }
-  };
-
   return (
-    <Web3Provider>
-      <MixerProvider>
-        <div className="App">
-          <Header setActiveSection={setActiveSection} />
-          
-          <main className="main-content">
-            {renderActiveSection()}
-          </main>
-          
-          <Footer />
-        </div>
-      </MixerProvider>
-    </Web3Provider>
+    <BedrockPassportProvider
+      baseUrl="https://api.bedrockpassport.com"
+      authCallbackUrl="https://d26f-37-223-119-63.ngrok-free.app/auth/callback"
+      tenantId="orange-dkuf82g6pr"
+    >
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginPanel />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+        </Routes>
+      </Router>
+    </BedrockPassportProvider>
   );
 }
 
