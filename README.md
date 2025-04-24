@@ -34,7 +34,7 @@ graph TD
     I -->|Swap to SOL| J[DEX (Jupiter/Orca)]
     J -->|User Receives SOL| A
 ```
-```
+
 
 ## Architecture Overview
 
