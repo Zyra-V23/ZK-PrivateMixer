@@ -18,6 +18,24 @@ A cross-chain Zero-Knowledge Mixer enabling private deposits and withdrawals on 
 
 ---
 
+```mermaid
+graph TD
+    A[Frontend / dApp] -->|Interacts with| B[EVM Blockchain (Sepolia)]
+    A -->|Interacts with| C[Solana Blockchain (Devnet)]
+    B -->|Deposit Commitment| D[ZK Mixer Contract (EVM)]
+    D -->|Publishes Merkle Root| E[Wormhole Bridge]
+    E -->|Syncs Merkle Root| F[Solana Connector / Light Protocol]
+    F -->|Insert Commitment| G[State Tree (Solana)]
+    G -->|Publishes Merkle Root| F
+    F -->|Returns Root| A
+    B -->|Wrap ETH to WETH| H[WETH Contract (Sepolia)]
+    H -->|Bridge WETH| E
+    E -->|Mint wWETH| I[WETH SPL Token (Solana)]
+    I -->|Swap to SOL| J[DEX (Jupiter/Orca)]
+    J -->|User Receives SOL| A
+```
+```
+
 ## Architecture Overview
 
 **High-Level Flow:**
