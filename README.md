@@ -36,7 +36,7 @@ A cross-chain Zero-Knowledge Mixer enabling private deposits and withdrawals on 
 - **Testing:** Hardhat, Mocha/Chai
 
 ### Solana
-- **ZK Integration:** Light Protocol (Rust, JS bridges)
+- **ZK Integration:** Solana SPL (Rust, JS bridges)
 - **Node/SDK:** [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/)
 - **Merkle/UTXO:** Light Protocol primitives, Merkle bridges
 - **Testing:** Rust, JS/TS integration scripts
