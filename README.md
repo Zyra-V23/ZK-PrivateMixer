@@ -18,43 +18,6 @@ A cross-chain Zero-Knowledge Mixer enabling private deposits and withdrawals on 
 
 ---
 
-```dot
-digraph ZKMixer {
-  // Configuración general
-  rankdir=TD;
-  node [shape=box, style=filled, fillcolor=lightblue, fontname="Arial"];
-  edge [fontname="Arial", fontsize=10];
-  
-  // Nodos
-  A [label="Frontend / dApp"];
-  B [label="EVM Blockchain (Sepolia)"];
-  C [label="Solana Blockchain (Devnet)"];
-  D [label="ZK Mixer Contract (EVM)"];
-  E [label="Wormhole Bridge"];
-  F [label="Solana Connector / Light Protocol"];
-  G [label="State Tree (Solana)"];
-  H [label="WETH Contract (Sepolia)"];
-  I [label="WETH SPL Token (Solana)"];
-  J [label="DEX (Jupiter/Orca)"];
-  
-  // Conexiones con etiquetas
-  A -> B [label="Interacts with"];
-  A -> C [label="Interacts with"];
-  B -> D [label="Deposit Commitment"];
-  D -> E [label="Publishes Merkle Root"];
-  E -> F [label="Syncs Merkle Root"];
-  F -> G [label="Insert Commitment"];
-  G -> F [label="Publishes Merkle Root"];
-  F -> A [label="Returns Root"];
-  B -> H [label="Wrap ETH to WETH"];
-  H -> E [label="Bridge WETH"];
-  E -> I [label="Mint wWETH"];
-  I -> J [label="Swap to SOL"];
-  J -> A [label="User Receives SOL"];
-}
-```
-```
-
 ## Architecture Overview
 
 **High-Level Flow:**
