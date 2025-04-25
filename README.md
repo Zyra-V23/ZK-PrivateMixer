@@ -20,21 +20,6 @@ A cross-chain Zero-Knowledge Mixer enabling private deposits and withdrawals on 
 
 ## Architecture Overview
 
-**High-Level Flow:**
-```
-[User]
-   |
-   |--(1. Deposit + receive note)--> [ZKMixer.sol (EVM)]
-   |
-   |--(2. Wait/mix: anonymity set grows)
-   |
-   |--(3. Generate ZK proof with note & Merkle root)
-   |
-   |--(4a. Withdraw on EVM)--> [ZKMixer.sol: withdraw()]
-   |
-   |--(4b. Withdraw on Solana)--> [Relayer/Bridge] --(executes withdrawal)--> [Solana Mixer/Light Protocol]
-```
-
 - **EVM:** Solidity contracts, Circom circuits, ZK proof generation, and event-driven relayer.
 - **Solana:** Light Protocol primitives, Rust/JS bridges, and Merkle/UTXO logic.
 - **Frontend:** React app for user interaction, note management, and proof generation.
